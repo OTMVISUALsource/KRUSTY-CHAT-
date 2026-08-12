@@ -63,7 +63,7 @@
     align-items:center;
     justify-content:space-between;
     gap:12px;
-    padding:12px 16px;
+    padding:calc(12px + env(safe-area-inset-top, 0px)) calc(16px + env(safe-area-inset-right, 0px)) 12px calc(16px + env(safe-area-inset-left, 0px));
     border-bottom:1px solid var(--border);
     background:rgba(10,11,13,0.92);
     backdrop-filter:blur(10px);
@@ -90,6 +90,12 @@
   .brand-text h1 span.k{color:var(--kick);}
   .brand-text h1 span.t{color:var(--twitch);}
   .brand-text p{margin:0; font-size:11px; color:var(--muted-2); font-family:'JetBrains Mono', monospace; letter-spacing:0.02em;}
+  .dev-credit{
+    display:flex; align-items:center; gap:4px; margin-top:2px !important;
+    font-size:9px !important; letter-spacing:0.04em; color:rgba(242,243,244,0.28) !important;
+    font-family:'JetBrains Mono', monospace; white-space:nowrap; user-select:none;
+  }
+  .dev-credit svg{width:8px; height:8px; flex-shrink:0; fill:rgba(242,243,244,0.32);}
 
   .header-actions{display:flex; align-items:center; gap:8px;}
   .icon-btn{
@@ -136,7 +142,7 @@
   }
 
   .live-tab{
-    position:fixed; top:64px; right:0; z-index:35;
+    position:fixed; top:calc(64px + env(safe-area-inset-top, 0px)); right:0; z-index:35;
     background:var(--live); color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:11px;
     padding:8px 10px 8px 12px; border-radius:8px 0 0 8px; cursor:pointer;
     display:flex; align-items:center; gap:6px;
@@ -428,13 +434,14 @@
     .activity-rail{
       position:fixed; top:0; right:0; bottom:0; width:86vw; max-width:340px;
       z-index:50; box-shadow:-10px 0 30px rgba(0,0,0,0.5);
+      padding-top:env(safe-area-inset-top, 0px); padding-bottom:env(safe-area-inset-bottom, 0px);
     }
     .activity-rail.closed{margin-right:-100vw;}
     .stage.vertical.mobile-stack{flex-direction:column;}
     .stage.vertical.mobile-stack .divider{width:100%; height:14px; cursor:row-resize;}
     .stage.vertical.mobile-stack .divider::before{width:auto; height:3px; top:50%; left:14px; right:14px; bottom:auto; transform:translateY(-50%); background:linear-gradient(90deg, var(--kick), var(--twitch));}
     .live-banner .msg small{display:none;}
-    .live-tab{top:auto; bottom:90px;}
+    .live-tab{top:auto; bottom:calc(90px + env(safe-area-inset-bottom, 0px));}
   }
 
   .rail-scrim{
@@ -443,7 +450,7 @@
   .rail-scrim.show{display:block;}
 
   .toast{
-    position:fixed; bottom:16px; left:50%; transform:translateX(-50%) translateY(20px);
+    position:fixed; bottom:calc(16px + env(safe-area-inset-bottom, 0px)); left:50%; transform:translateX(-50%) translateY(20px);
     background:var(--surface-2); border:1px solid var(--border); color:var(--text);
     padding:10px 16px; border-radius:8px; font-size:12.5px; z-index:100;
     opacity:0; transition:.25s; pointer-events:none;
@@ -458,7 +465,7 @@
       radial-gradient(900px 480px at 85% 0%, rgba(145,70,255,0.16), transparent 55%),
       #050608;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:18px; padding:24px; text-align:center;
+    gap:18px; padding:calc(24px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px)); text-align:center;
     transition:opacity .6s ease, visibility .6s ease;
   }
   #loadingScreen.hide{opacity:0; visibility:hidden; pointer-events:none;}
@@ -544,6 +551,10 @@
     <div class="brand-text">
       <h1><span class="k">Krusty</span> <span class="t">Chat</span></h1>
       <p id="statusLine">two chats, one stream</p>
+      <p class="dev-credit">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        <span>developed by juanpalaciosx</span>
+      </p>
     </div>
   </div>
   <div class="header-actions">
