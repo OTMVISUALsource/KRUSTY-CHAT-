@@ -330,6 +330,60 @@
   .live-settings .row{display:flex; align-items:center; justify-content:space-between; font-size:11.5px; color:var(--muted);}
   .live-settings .status{font-size:10px; color:var(--muted-2); font-family:'JetBrains Mono',monospace;}
 
+  /* ---------- MERGED VIEW ---------- */
+  .merged-pane{
+    flex:1; display:none; flex-direction:column; min-height:0; background:#0A0A0C; position:relative;
+  }
+  .merged-pane.show{display:flex;}
+  .merged-status{
+    display:flex; align-items:center; gap:8px; padding:8px 12px; flex-shrink:0;
+    border-bottom:1px solid var(--border-soft); background:var(--surface); flex-wrap:wrap;
+  }
+  .status-chip{
+    display:flex; align-items:center; gap:6px; font-size:11px; font-family:'Space Grotesk',sans-serif; font-weight:600;
+    padding:4px 9px; border-radius:20px; border:1px solid var(--border); color:var(--muted);
+  }
+  .status-chip .dot{width:7px; height:7px; border-radius:50%; background:var(--muted-2); flex-shrink:0;}
+  .status-chip.connected .dot{background:#3ED598; box-shadow:0 0 6px #3ED598;}
+  .status-chip.connecting .dot{background:#F5C542; box-shadow:0 0 6px #F5C542; animation:pulse 1.2s infinite;}
+  .status-chip.failed .dot{background:var(--danger); box-shadow:0 0 6px var(--danger);}
+  .status-chip.kick{border-color:rgba(83,252,24,0.25);}
+  .status-chip.twitch{border-color:rgba(145,70,255,0.3);}
+  .merged-msglist{
+    flex:1; overflow-y:auto; padding:8px 4px; display:flex; flex-direction:column; gap:1px;
+    scroll-behavior:auto;
+  }
+  .merged-msglist::-webkit-scrollbar{width:7px;}
+  .merged-msglist::-webkit-scrollbar-thumb{background:var(--border); border-radius:4px;}
+  .chat-row{
+    display:flex; align-items:baseline; gap:7px; padding:5px 12px; font-size:13.5px; line-height:1.4;
+    border-radius:4px; word-break:break-word;
+  }
+  .chat-row:hover{background:rgba(255,255,255,0.03);}
+  .chat-row .plat-icon{
+    flex-shrink:0; width:16px; height:16px; border-radius:4px; display:flex; align-items:center; justify-content:center;
+    font-size:9px; font-weight:800; font-family:'Space Grotesk',sans-serif; margin-top:2px;
+  }
+  .chat-row.kick .plat-icon{background:var(--kick); color:#000;}
+  .chat-row.twitch .plat-icon{background:var(--twitch); color:#fff;}
+  .chat-row .uname{font-weight:700; flex-shrink:0; font-family:'Inter',sans-serif;}
+  .chat-row.kick .uname{color:var(--kick);}
+  .chat-row.twitch .uname{color:#C9A5FF;}
+  .chat-row .mtext{color:var(--text); min-width:0;}
+  .merged-empty{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+    color:var(--muted-2); text-align:center; padding:24px;
+  }
+  .merged-empty p{margin:0; font-size:12.5px; max-width:260px; line-height:1.5;}
+  .jump-latest{
+    position:absolute; bottom:14px; left:50%; transform:translateX(-50%) translateY(10px);
+    background:var(--twitch); color:#fff; border:none; border-radius:20px; padding:8px 16px;
+    font-size:12px; font-weight:700; font-family:'Space Grotesk',sans-serif; cursor:pointer;
+    display:flex; align-items:center; gap:6px; opacity:0; pointer-events:none; transition:.2s;
+    box-shadow:0 4px 16px rgba(0,0,0,0.4);
+  }
+  .jump-latest.show{opacity:1; pointer-events:auto; transform:translateX(-50%) translateY(0);}
+
   /* ---------- MOBILE ---------- */
   @media (max-width: 760px){
     .brand-text p{display:none;}
@@ -405,7 +459,11 @@
     <input id="twitchInput" type="text" placeholder="channel_name" autocomplete="off" autocapitalize="off" value="krustyvlogs">
   </div>
   <button class="go-btn" id="loadBtn">Load chats</button>
-  <div class="layout-toggles">
+  <div class="layout-toggles" id="viewToggles">
+    <button class="toggle-btn active" data-view="split">⬜⬜ Split</button>
+    <button class="toggle-btn" data-view="merged">☰ Merged</button>
+  </div>
+  <div class="layout-toggles" id="layoutToggles">
     <button class="toggle-btn active" data-layout="vertical">▮▮ Side by side</button>
     <button class="toggle-btn" data-layout="horizontal">▬ Top &amp; bottom</button>
   </div>
@@ -450,6 +508,20 @@
         <p>Enter a Twitch channel above and hit <b>Load chats</b> to bring its live chat in here.</p>
       </div>
     </div>
+  </div>
+
+  <div class="merged-pane" id="mergedPane">
+    <div class="merged-status">
+      <div class="status-chip kick" id="kickStatusChip"><span class="dot"></span><span id="kickStatusText">Kick: idle</span></div>
+      <div class="status-chip twitch" id="twitchStatusChip"><span class="dot"></span><span id="twitchStatusText">Twitch: idle</span></div>
+    </div>
+    <div class="merged-msglist" id="mergedList">
+      <div class="merged-empty" id="mergedEmpty">
+        <div class="glyph" style="font-size:20px;opacity:.5;">🧩</div>
+        <p>Both chats will stream into this one feed, color-coded by platform — green for Kick, purple for Twitch. Scroll up anytime to read back; new messages won't yank you down while you're reading.</p>
+      </div>
+    </div>
+    <button class="jump-latest" id="jumpLatest">↓ New messages</button>
   </div>
 
   <div class="activity-rail closed" id="rail">
@@ -543,6 +615,8 @@
     }
 
     checkKickLive();
+    if(typeof connectTwitch === 'function') connectTwitch(t);
+    if(typeof connectKick === 'function') connectKick(k);
   }
 
   loadBtn.addEventListener('click', loadChats);
@@ -569,6 +643,30 @@
       btn.textContent = hidden ? '+' : '–';
       divider.style.display = (kickPane.classList.contains('hidden-pane') || twitchPane.classList.contains('hidden-pane')) ? 'none' : 'flex';
       if(!hidden){ pane.style.flex = '1 1 50%'; other.style.flex = '1 1 50%'; }
+    });
+  });
+
+  // View mode toggles (Split vs Merged)
+  const mergedPane = document.getElementById('mergedPane');
+  const layoutToggles = document.getElementById('layoutToggles');
+  document.querySelectorAll('.toggle-btn[data-view]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.toggle-btn[data-view]').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const view = btn.getAttribute('data-view');
+      if(view === 'merged'){
+        mergedPane.classList.add('show');
+        kickPane.style.display = 'none';
+        twitchPane.style.display = 'none';
+        divider.style.display = 'none';
+        layoutToggles.style.display = 'none';
+      } else {
+        mergedPane.classList.remove('show');
+        kickPane.style.display = '';
+        twitchPane.style.display = '';
+        divider.style.display = kickPane.classList.contains('hidden-pane') || twitchPane.classList.contains('hidden-pane') ? 'none' : 'flex';
+        layoutToggles.style.display = '';
+      }
     });
   });
 
@@ -776,6 +874,184 @@
   }
   window.addEventListener('resize', applyMobileClass);
   applyMobileClass();
+
+  // ---------- MERGED LIVE CHAT (real messages, no OAuth) ----------
+  // Twitch: anonymous IRC-over-websocket (public read-only, same as any chat overlay tool).
+  // Kick: public Pusher socket, the same one every viewer's browser connects to on kick.com.
+  const mergedList = document.getElementById('mergedList');
+  const mergedEmpty = document.getElementById('mergedEmpty');
+  const jumpLatest = document.getElementById('jumpLatest');
+  const kickChip = document.getElementById('kickStatusChip');
+  const kickChipText = document.getElementById('kickStatusText');
+  const twitchChip = document.getElementById('twitchStatusChip');
+  const twitchChipText = document.getElementById('twitchStatusText');
+
+  let twitchSocket = null, kickSocket = null;
+  let twitchRetry = 0, kickRetry = 0;
+  let messages = [];
+  const MAX_MESSAGES = 400;
+
+  function setChip(chip, textEl, label, statusClass){
+    chip.className = 'status-chip ' + (chip.classList.contains('kick') ? 'kick' : 'twitch') + ' ' + statusClass;
+    textEl.textContent = label;
+  }
+
+  function isNearBottom(){
+    return mergedList.scrollHeight - mergedList.scrollTop - mergedList.clientHeight < 80;
+  }
+
+  function escapeHtml(s){
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function renderMessage(msg){
+    if(mergedEmpty.parentNode){ mergedEmpty.remove(); }
+    const wasNearBottom = isNearBottom();
+    const row = document.createElement('div');
+    row.className = 'chat-row ' + msg.platform;
+    const icon = msg.platform === 'kick' ? 'K' : 'T';
+    const nameColor = msg.color ? ' style="color:' + msg.color + '"' : '';
+    row.innerHTML = '<span class="plat-icon">' + icon + '</span>' +
+      '<span class="uname"' + nameColor + '>' + escapeHtml(msg.user) + '</span>' +
+      '<span class="mtext">' + escapeHtml(msg.text) + '</span>';
+    mergedList.appendChild(row);
+    messages.push(msg);
+    while(messages.length > MAX_MESSAGES){
+      messages.shift();
+      if(mergedList.firstElementChild){
+        mergedList.removeChild(mergedList.firstElementChild);
+      }
+    }
+    if(wasNearBottom){
+      mergedList.scrollTop = mergedList.scrollHeight;
+      jumpLatest.classList.remove('show');
+    } else {
+      jumpLatest.classList.add('show');
+    }
+  }
+
+  jumpLatest.addEventListener('click', ()=>{
+    mergedList.scrollTop = mergedList.scrollHeight;
+    jumpLatest.classList.remove('show');
+  });
+  mergedList.addEventListener('scroll', ()=>{
+    if(isNearBottom()) jumpLatest.classList.remove('show');
+  });
+
+  function parseTwitchTags(raw){
+    const tags = {};
+    raw.split(';').forEach(pair=>{
+      const idx = pair.indexOf('=');
+      if(idx === -1) return;
+      const k = pair.slice(0, idx);
+      const v = pair.slice(idx+1).replace(/\\s/g,' ').replace(/\\:/g,';').replace(/\\\\/g,'\\');
+      tags[k] = v;
+    });
+    return tags;
+  }
+
+  function connectTwitch(channel){
+    if(twitchSocket){ try{ twitchSocket.close(); }catch(e){} }
+    if(!channel) return;
+    setChip(twitchChip, twitchChipText, 'Twitch: connecting…', 'connecting');
+    let sock;
+    try{ sock = new WebSocket('wss://irc-ws.chat.twitch.tv:443'); }
+    catch(e){ setChip(twitchChip, twitchChipText, 'Twitch: unavailable', 'failed'); return; }
+    twitchSocket = sock;
+    sock.onopen = ()=>{
+      sock.send('CAP REQ :twitch.tv/tags twitch.tv/commands');
+      sock.send('PASS SCHMOOPIIE');
+      sock.send('NICK justinfan' + Math.floor(10000 + Math.random()*80000));
+      sock.send('JOIN #' + channel.toLowerCase());
+    };
+    sock.onmessage = (e)=>{
+      const lines = e.data.split('\r\n').filter(Boolean);
+      lines.forEach(line=>{
+        if(line.startsWith('PING')){ sock.send('PONG :tmi.twitch.tv'); return; }
+        if(line.includes('366 justinfan') || line.includes('JOIN #')){
+          setChip(twitchChip, twitchChipText, 'Twitch: connected', 'connected');
+          twitchRetry = 0;
+        }
+        const m = line.match(/^@([^ ]+) :([^!]+)!\S+ PRIVMSG #\S+ :(.*)$/);
+        if(m){
+          const tags = parseTwitchTags(m[1]);
+          renderMessage({
+            platform:'twitch',
+            user: tags['display-name'] || m[2],
+            color: tags['color'] || null,
+            text: m[3]
+          });
+        }
+      });
+    };
+    sock.onclose = ()=>{
+      if(twitchSocket !== sock) return;
+      setChip(twitchChip, twitchChipText, 'Twitch: reconnecting…', 'connecting');
+      twitchRetry++;
+      setTimeout(()=>{ if(twitchSocket === sock) connectTwitch(channel); }, Math.min(15000, 2000*twitchRetry));
+    };
+    sock.onerror = ()=>{ try{ sock.close(); }catch(e){} };
+  }
+
+  async function connectKick(channel){
+    if(kickSocket){ try{ kickSocket.close(); }catch(e){} kickSocket = null; }
+    if(!channel) return;
+    setChip(kickChip, kickChipText, 'Kick: connecting…', 'connecting');
+    let chatroomId;
+    try{
+      const res = await fetch('https://kick.com/api/v2/channels/' + channel);
+      if(!res.ok) throw new Error('lookup failed');
+      const data = await res.json();
+      chatroomId = data && data.chatroom && data.chatroom.id;
+      if(!chatroomId) throw new Error('no chatroom id');
+    } catch(err){
+      setChip(kickChip, kickChipText, 'Kick: unavailable in this browser', 'failed');
+      return;
+    }
+    let sock;
+    try{
+      sock = new WebSocket('wss://ws-us2.pusher.com/app/32cbd69e4b950bf97679?protocol=7&client=js&version=8.4.0&flash=false');
+    } catch(e){
+      setChip(kickChip, kickChipText, 'Kick: unavailable', 'failed');
+      return;
+    }
+    kickSocket = sock;
+    sock.onopen = ()=>{
+      sock.send(JSON.stringify({event:'pusher:subscribe', data:{channel:'chatrooms.' + chatroomId + '.v2'}}));
+    };
+    sock.onmessage = (e)=>{
+      let outer;
+      try{ outer = JSON.parse(e.data); } catch(err){ return; }
+      if(outer.event === 'pusher_internal:subscription_succeeded' || outer.event === 'pusher:connection_established'){
+        setChip(kickChip, kickChipText, 'Kick: connected', 'connected');
+        kickRetry = 0;
+      }
+      if(outer.event === 'App\\Events\\ChatMessageEvent'){
+        try{
+          const payload = JSON.parse(outer.data);
+          renderMessage({
+            platform:'kick',
+            user: (payload.sender && payload.sender.username) || 'viewer',
+            color: (payload.sender && payload.sender.identity && payload.sender.identity.color) || null,
+            text: payload.content || ''
+          });
+        } catch(err){}
+      }
+    };
+    sock.onclose = ()=>{
+      if(kickSocket !== sock) return;
+      setChip(kickChip, kickChipText, 'Kick: reconnecting…', 'connecting');
+      kickRetry++;
+      if(kickRetry <= 5){
+        setTimeout(()=>{ if(kickSocket === sock) connectKick(channel); }, Math.min(15000, 2000*kickRetry));
+      } else {
+        setChip(kickChip, kickChipText, 'Kick: connection unstable — try Split view', 'failed');
+      }
+    };
+    sock.onerror = ()=>{ try{ sock.close(); }catch(e){} };
+  }
 
   // Auto-load Krusty's channels on first open
   loadChats();
