@@ -6,26 +6,29 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0B0E14">
+<meta name="theme-color" content="#000000">
 <title>Krusty Chat</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0B0E14;
-    --surface:#12161F;
-    --surface-2:#181D28;
-    --border:#232838;
-    --border-soft:#1B2030;
-    --text:#E7E9EE;
-    --muted:#8B93A7;
-    --muted-2:#5C6478;
+    --bg:#08090B;
+    --surface:#0F1012;
+    --surface-2:#161719;
+    --border:#232426;
+    --border-soft:#1A1B1D;
+    --text:#F2F3F4;
+    --muted:#9297A0;
+    --muted-2:#5B5F66;
     --kick:#53FC18;
-    --kick-dim:#2E6E12;
+    --kick-black:#000000;
+    --kick-glow:rgba(83,252,24,0.35);
     --twitch:#9146FF;
-    --twitch-dim:#4E2790;
+    --twitch-dark:#0E0C13;
+    --twitch-glow:rgba(145,70,255,0.4);
     --danger:#FF5D5D;
+    --live:#FF3B3B;
     --radius:10px;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
@@ -33,8 +36,8 @@
   body{
     margin:0;
     background:
-      radial-gradient(1200px 600px at 15% -10%, rgba(83,252,24,0.05), transparent 60%),
-      radial-gradient(1200px 600px at 85% -10%, rgba(145,70,255,0.07), transparent 60%),
+      radial-gradient(1000px 500px at 10% -10%, rgba(83,252,24,0.06), transparent 55%),
+      radial-gradient(1000px 500px at 90% -10%, rgba(145,70,255,0.1), transparent 55%),
       var(--bg);
     color:var(--text);
     font-family:'Inter', system-ui, sans-serif;
@@ -53,7 +56,7 @@
     gap:12px;
     padding:12px 16px;
     border-bottom:1px solid var(--border);
-    background:rgba(18,22,31,0.9);
+    background:rgba(10,11,13,0.92);
     backdrop-filter:blur(10px);
     z-index:30;
     flex-shrink:0;
@@ -62,15 +65,16 @@
   .brand-mark{
     width:34px; height:34px; border-radius:9px; flex-shrink:0;
     position:relative;
-    background:var(--surface-2);
+    background:#000;
     border:1px solid var(--border);
     display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
   }
   .brand-mark::before, .brand-mark::after{
-    content:''; position:absolute; width:13px; height:13px; border-radius:4px 4px 4px 2px;
+    content:''; position:absolute; width:14px; height:14px; border-radius:4px 4px 4px 2px;
   }
-  .brand-mark::before{ background:var(--kick); left:5px; top:8px; transform:rotate(-8deg); box-shadow:0 0 10px rgba(83,252,24,0.5);}
-  .brand-mark::after{ background:var(--twitch); right:5px; bottom:8px; transform:rotate(8deg); box-shadow:0 0 10px rgba(145,70,255,0.5);}
+  .brand-mark::before{ background:var(--kick); left:4px; top:7px; transform:rotate(-8deg); box-shadow:0 0 12px var(--kick-glow);}
+  .brand-mark::after{ background:var(--twitch); right:4px; bottom:7px; transform:rotate(8deg); box-shadow:0 0 12px var(--twitch-glow);}
   .brand-text{min-width:0;}
   .brand-text h1{
     font-family:'Space Grotesk', sans-serif;
@@ -86,10 +90,55 @@
     width:36px; height:36px; border-radius:8px;
     background:var(--surface-2); border:1px solid var(--border);
     color:var(--muted); display:flex; align-items:center; justify-content:center;
-    cursor:pointer; transition:.15s;
+    cursor:pointer; transition:.15s; font-size:15px;
   }
-  .icon-btn:hover{color:var(--text); border-color:#2E3448;}
+  .icon-btn:hover{color:var(--text); border-color:#3A3B3E;}
   .icon-btn.active{color:var(--text); border-color:var(--twitch); box-shadow:0 0 0 1px var(--twitch) inset;}
+  .icon-btn.live-toggle.on{color:var(--live); border-color:var(--live); box-shadow:0 0 0 1px var(--live) inset;}
+
+  /* ---------- LIVE BANNER ---------- */
+  .live-banner{
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    padding:10px 16px; flex-shrink:0;
+    background:linear-gradient(90deg, rgba(83,252,24,0.14), rgba(145,70,255,0.16));
+    border-bottom:1px solid var(--border);
+    animation:bannerIn .3s ease;
+  }
+  .live-banner.hidden{display:none;}
+  @keyframes bannerIn{ from{opacity:0; transform:translateY(-6px);} to{opacity:1; transform:translateY(0);} }
+  .live-dot{
+    width:9px; height:9px; border-radius:50%; background:var(--live); flex-shrink:0;
+    box-shadow:0 0 8px var(--live);
+    animation:pulse 1.4s infinite;
+  }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+  .live-banner .msg{font-size:13px; font-weight:600; font-family:'Space Grotesk',sans-serif; flex-shrink:0;}
+  .live-banner .msg small{display:block; font-size:10.5px; font-weight:400; color:var(--muted); font-family:'Inter',sans-serif; margin-top:1px;}
+  .live-banner .spacer{flex:1;}
+  .watch-btn{
+    height:32px; padding:0 14px; border-radius:7px; border:1px solid transparent; cursor:pointer;
+    font-size:12px; font-weight:700; font-family:'Space Grotesk',sans-serif; display:flex; align-items:center; gap:6px;
+    text-decoration:none; white-space:nowrap;
+  }
+  .watch-btn.kick{background:var(--kick); color:#000;}
+  .watch-btn.twitch{background:var(--twitch); color:#fff;}
+  .watch-btn:active{transform:scale(0.97);}
+  .banner-close{
+    width:28px; height:28px; border-radius:6px; border:1px solid rgba(255,255,255,0.15);
+    background:rgba(0,0,0,0.25); color:var(--muted); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; flex-shrink:0; font-size:14px;
+  }
+
+  .live-tab{
+    position:fixed; top:64px; right:0; z-index:35;
+    background:var(--live); color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:11px;
+    padding:8px 10px 8px 12px; border-radius:8px 0 0 8px; cursor:pointer;
+    display:flex; align-items:center; gap:6px;
+    box-shadow:-4px 4px 16px rgba(255,59,59,0.35);
+    transform:translateX(120%); transition:transform .25s ease;
+  }
+  .live-tab.show{transform:translateX(0);}
+  .live-tab .live-dot{background:#fff; box-shadow:0 0 6px #fff;}
 
   /* ---------- SETUP BAR ---------- */
   .setup-bar{
@@ -97,12 +146,15 @@
     padding:10px 16px; border-bottom:1px solid var(--border-soft);
     background:var(--surface); flex-shrink:0;
   }
+  .setup-bar.collapsed{display:none;}
   .field{
     display:flex; align-items:center; gap:8px;
     background:var(--surface-2); border:1px solid var(--border);
     border-radius:8px; padding:0 10px; height:38px;
     flex:1 1 200px; min-width:150px;
   }
+  .field.kick{border-color:rgba(83,252,24,0.25);}
+  .field.twitch{border-color:rgba(145,70,255,0.3);}
   .field .dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
   .field.kick .dot{background:var(--kick); box-shadow:0 0 6px rgba(83,252,24,0.7);}
   .field.twitch .dot{background:var(--twitch); box-shadow:0 0 6px rgba(145,70,255,0.7);}
@@ -116,7 +168,7 @@
   .go-btn{
     height:38px; padding:0 18px; border-radius:8px; border:none; cursor:pointer;
     background:linear-gradient(90deg, var(--kick), var(--twitch));
-    color:#0B0E14; font-weight:600; font-size:13px; font-family:'Space Grotesk',sans-serif;
+    color:#000; font-weight:700; font-size:13px; font-family:'Space Grotesk',sans-serif;
     letter-spacing:0.01em; flex-shrink:0;
     transition:transform .12s, filter .12s;
   }
@@ -129,7 +181,7 @@
     display:flex; align-items:center; gap:6px; font-family:'Inter',sans-serif; font-weight:500;
     transition:.15s;
   }
-  .toggle-btn.active{ color:var(--text); border-color:#3A4160; background:#1D2333;}
+  .toggle-btn.active{ color:var(--text); border-color:#4A4B4E; background:#1F2022;}
   .toggle-btn svg{width:14px; height:14px; flex-shrink:0;}
 
   /* ---------- MAIN STAGE ---------- */
@@ -141,22 +193,28 @@
 
   .pane{
     position:relative; min-width:0; min-height:0; display:flex; flex-direction:column;
-    background:var(--surface);
   }
+  .pane.kick{background:var(--kick-black);}
+  .pane.twitch{background:var(--twitch-dark);}
   .pane.hidden-pane{display:none;}
   .pane-header{
     display:flex; align-items:center; justify-content:space-between;
     padding:8px 12px; border-bottom:1px solid var(--border-soft);
-    flex-shrink:0; background:var(--surface);
+    flex-shrink:0; transition:.2s;
+  }
+  .pane.kick .pane-header{background:#000; border-bottom:1px solid rgba(83,252,24,0.18);}
+  .pane.twitch .pane-header{background:#151022; border-bottom:1px solid rgba(145,70,255,0.22);}
+  .stage.focus-mode .pane-header{
+    height:0; padding-top:0; padding-bottom:0; overflow:hidden; border:none; opacity:0;
   }
   .pane-title{display:flex; align-items:center; gap:8px; min-width:0;}
   .pane-title .badge{
-    font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:600;
-    padding:2px 7px; border-radius:5px; letter-spacing:0.03em; flex-shrink:0;
+    font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:700;
+    padding:3px 8px; border-radius:5px; letter-spacing:0.03em; flex-shrink:0;
   }
-  .pane.kick .pane-title .badge{background:rgba(83,252,24,0.12); color:var(--kick); border:1px solid rgba(83,252,24,0.3);}
-  .pane.twitch .pane-title .badge{background:rgba(145,70,255,0.14); color:#B48BFF; border:1px solid rgba(145,70,255,0.35);}
-  .pane-title span.name{font-size:13px; color:var(--text); font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .pane.kick .pane-title .badge{background:var(--kick); color:#000;}
+  .pane.twitch .pane-title .badge{background:var(--twitch); color:#fff;}
+  .pane-title span.name{font-size:13px; color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .pane-actions{display:flex; gap:4px; flex-shrink:0;}
   .mini-btn{
     width:26px; height:26px; border-radius:6px; border:1px solid var(--border);
@@ -164,7 +222,9 @@
     cursor:pointer; font-size:12px;
   }
   .mini-btn:hover{color:var(--text);}
-  .pane-body{flex:1; min-height:0; position:relative; background:#0D1016;}
+  .pane-body{flex:1; min-height:0; position:relative;}
+  .pane.kick .pane-body{background:#000;}
+  .pane.twitch .pane-body{background:#0E0C13;}
   .pane-body iframe{width:100%; height:100%; border:none; display:block;}
 
   .empty-pane{
@@ -176,12 +236,12 @@
 
   .fallback-note{
     position:absolute; left:10px; right:10px; bottom:10px;
-    background:rgba(18,22,31,0.95); border:1px solid var(--border);
+    background:rgba(10,10,10,0.95); border:1px solid var(--border);
     border-radius:8px; padding:10px 12px; font-size:11.5px; color:var(--muted);
     display:flex; align-items:center; justify-content:space-between; gap:10px;
     backdrop-filter:blur(6px);
   }
-  .fallback-note a{color:var(--twitch); text-decoration:none; font-weight:600; white-space:nowrap;}
+  .fallback-note a{color:var(--kick); text-decoration:none; font-weight:700; white-space:nowrap;}
 
   /* Divider */
   .divider{
@@ -191,6 +251,8 @@
   }
   .stage.vertical .divider{width:14px; cursor:col-resize;}
   .stage.horizontal .divider{height:14px; cursor:row-resize;}
+  .stage.focus-mode .divider{width:6px;}
+  .stage.horizontal.focus-mode .divider{height:6px; width:auto;}
   .divider::before{
     content:''; position:absolute;
     background:linear-gradient(180deg, var(--kick), var(--twitch));
@@ -200,9 +262,10 @@
   .stage.horizontal .divider::before{height:3px; left:14px; right:14px; top:50%; transform:translateY(-50%); background:linear-gradient(90deg, var(--kick), var(--twitch));}
   .divider .grip{
     position:relative; z-index:2; width:16px; height:26px; border-radius:6px;
-    background:var(--surface-2); border:1px solid #2E3448;
+    background:var(--surface-2); border:1px solid #3A3B3E;
     display:flex; align-items:center; justify-content:center; gap:2px;
   }
+  .stage.focus-mode .divider .grip{display:none;}
   .stage.horizontal .divider .grip{width:26px; height:16px; flex-direction:row;}
   .divider .grip i{width:2px; height:10px; background:var(--muted-2); border-radius:1px;}
   .stage.horizontal .divider .grip i{width:10px; height:2px;}
@@ -219,7 +282,7 @@
     padding:12px 14px; border-bottom:1px solid var(--border-soft);
     display:flex; align-items:center; justify-content:space-between; flex-shrink:0;
   }
-  .rail-head h2{margin:0; font-size:13px; font-family:'Space Grotesk',sans-serif; font-weight:600;}
+  .rail-head h2{margin:0; font-size:13px; font-family:'Space Grotesk',sans-serif; font-weight:700;}
   .rail-head .sub{font-size:10.5px; color:var(--muted-2); font-family:'JetBrains Mono',monospace; margin-top:2px;}
   .demo-switch{
     display:flex; align-items:center; gap:6px; font-size:10.5px; color:var(--muted); cursor:pointer;
@@ -240,10 +303,10 @@
   @keyframes slideIn{from{opacity:0; transform:translateY(-6px);} to{opacity:1; transform:translateY(0);}}
   .feed-item .top{display:flex; align-items:center; gap:6px; margin-bottom:4px;}
   .feed-item .plat{
-    font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:700; padding:1px 6px; border-radius:4px;
+    font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:700; padding:1px 6px; border-radius:4px;
   }
-  .feed-item.kick .plat{background:rgba(83,252,24,0.15); color:var(--kick);}
-  .feed-item.twitch .plat{background:rgba(145,70,255,0.18); color:#B48BFF;}
+  .feed-item.kick .plat{background:var(--kick); color:#000;}
+  .feed-item.twitch .plat{background:var(--twitch); color:#fff;}
   .feed-item .user{font-weight:600; color:var(--text); font-size:12px;}
   .feed-item .desc{color:var(--muted); font-size:11.5px; line-height:1.4;}
   .feed-item .time{margin-left:auto; color:var(--muted-2); font-size:10px; font-family:'JetBrains Mono',monospace;}
@@ -259,7 +322,13 @@
     padding:10px 12px; border-top:1px solid var(--border-soft); flex-shrink:0;
   }
   .rail-foot p{margin:0; font-size:10.5px; color:var(--muted-2); line-height:1.5;}
-  .rail-foot a{color:var(--twitch);}
+
+  .live-settings{
+    padding:10px 12px; border-top:1px solid var(--border-soft); flex-shrink:0;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .live-settings .row{display:flex; align-items:center; justify-content:space-between; font-size:11.5px; color:var(--muted);}
+  .live-settings .status{font-size:10px; color:var(--muted-2); font-family:'JetBrains Mono',monospace;}
 
   /* ---------- MOBILE ---------- */
   @media (max-width: 760px){
@@ -277,6 +346,8 @@
     .stage.vertical.mobile-stack{flex-direction:column;}
     .stage.vertical.mobile-stack .divider{width:100%; height:14px; cursor:row-resize;}
     .stage.vertical.mobile-stack .divider::before{width:auto; height:3px; top:50%; left:14px; right:14px; bottom:auto; transform:translateY(-50%); background:linear-gradient(90deg, var(--kick), var(--twitch));}
+    .live-banner .msg small{display:none;}
+    .live-tab{top:auto; bottom:90px;}
   }
 
   .rail-scrim{
@@ -304,27 +375,39 @@
     </div>
   </div>
   <div class="header-actions">
+    <button class="icon-btn live-toggle" id="liveToggleBtn" title="Mark Krusty as live">🔴</button>
+    <button class="icon-btn" id="focusBtn" title="Clean / focus mode">✦</button>
     <button class="icon-btn" id="swapBtn" title="Swap panels">⇄</button>
     <button class="icon-btn" id="railBtn" title="Activity feed">🔔</button>
     <button class="icon-btn" id="fsBtn" title="Fullscreen">⛶</button>
   </div>
 </header>
 
-<div class="setup-bar">
+<div class="live-banner hidden" id="liveBanner">
+  <div class="live-dot"></div>
+  <div class="msg">KRUSTY IS LIVE<small id="liveSub">watch on Kick or Twitch</small></div>
+  <div class="spacer"></div>
+  <a class="watch-btn kick" id="watchKick" href="#" target="_blank" rel="noopener">▶ Watch on Kick</a>
+  <a class="watch-btn twitch" id="watchTwitch" href="#" target="_blank" rel="noopener">▶ Watch on Twitch</a>
+  <button class="banner-close" id="bannerClose" title="Hide">✕</button>
+</div>
+<div class="live-tab" id="liveTab"><span class="live-dot"></span>LIVE</div>
+
+<div class="setup-bar" id="setupBar">
   <div class="field kick">
     <span class="dot"></span>
     <span class="prefix">kick.com/</span>
-    <input id="kickInput" type="text" placeholder="channel-name" autocomplete="off" autocapitalize="off">
+    <input id="kickInput" type="text" placeholder="channel-name" autocomplete="off" autocapitalize="off" value="krustyvlogs">
   </div>
   <div class="field twitch">
     <span class="dot"></span>
     <span class="prefix">twitch.tv/</span>
-    <input id="twitchInput" type="text" placeholder="channel_name" autocomplete="off" autocapitalize="off">
+    <input id="twitchInput" type="text" placeholder="channel_name" autocomplete="off" autocapitalize="off" value="krustyvlogs">
   </div>
   <button class="go-btn" id="loadBtn">Load chats</button>
   <div class="layout-toggles">
     <button class="toggle-btn active" data-layout="vertical">▮▮ Side by side</button>
-    <button class="toggle-btn" data-layout="horizontal">▬ Stacked</button>
+    <button class="toggle-btn" data-layout="horizontal">▬ Top &amp; bottom</button>
   </div>
 </div>
 
@@ -383,8 +466,12 @@
         <p>No live events connected yet. Flip <b>Demo</b> on to preview how alerts will look, or connect your Twitch &amp; Kick API keys for the real thing.</p>
       </div>
     </div>
+    <div class="live-settings">
+      <div class="row"><span>Mark Krusty live</span><div class="sw" id="liveSw"></div></div>
+      <div class="status" id="autoStatus">auto-checking Kick…</div>
+    </div>
     <div class="rail-foot">
-      <p>Real gift / sub / kick-points alerts need your own Twitch &amp; Kick developer app + OAuth token — each platform requires you to authorize a bot to receive these events. Ask me to help wire that in once you've registered your apps.</p>
+      <p>Real gift / sub / kick-points alerts need your own Twitch &amp; Kick developer app + OAuth token. The live check above is a best-effort Kick lookup with a manual switch as backup — Twitch has no key-free way to check live status.</p>
     </div>
   </div>
 </div>
@@ -408,7 +495,7 @@
   const statusLine = document.getElementById('statusLine');
   const toast = document.getElementById('toast');
 
-  let state = { kick:'', twitch:'', layout:'vertical', order:['kickPane','twitchPane'] };
+  let state = { kick:'', twitch:'', layout:'vertical', live:false };
 
   function showToast(msg){
     toast.textContent = msg;
@@ -427,8 +514,8 @@
 
     if(k){
       kickName.textContent = k;
-      kickBody.innerHTML = '<iframe src="https://kick.com/' + k + '/chatroom" loading="lazy"></iframe>' +
-        '<div class="fallback-note" id="kickFallback"><span>If the Kick chat does not appear, their site is blocking embeds in this browser.</span><a href="https://kick.com/' + k + '/chatroom" target="_blank" rel="noopener">Open &#8599;</a></div>';
+      kickBody.innerHTML = '<iframe src="https://kick.com/popout/' + k + '/chat" loading="lazy"></iframe>' +
+        '<div class="fallback-note" id="kickFallback"><span>If the Kick chat does not appear, their site is blocking embeds in this browser.</span><a href="https://kick.com/popout/' + k + '/chat" target="_blank" rel="noopener">Open &#8599;</a></div>';
     } else {
       kickName.textContent = 'no channel set';
       kickBody.innerHTML = '<div class="empty-pane"><div class="glyph">💬</div><p>Enter a Kick channel above and hit <b>Load chats</b>.</p></div>';
@@ -443,6 +530,9 @@
       twitchBody.innerHTML = '<div class="empty-pane"><div class="glyph">💬</div><p>Enter a Twitch channel above and hit <b>Load chats</b>.</p></div>';
     }
 
+    document.getElementById('watchKick').href = k ? 'https://kick.com/' + k : '#';
+    document.getElementById('watchTwitch').href = t ? 'https://www.twitch.tv/' + t : '#';
+
     if(k && t){
       statusLine.textContent = k + ' + ' + t;
       showToast('Both chats loaded');
@@ -451,6 +541,8 @@
     } else {
       statusLine.textContent = 'two chats, one stream';
     }
+
+    checkKickLive();
   }
 
   loadBtn.addEventListener('click', loadChats);
@@ -463,7 +555,7 @@
       const which = btn.getAttribute('data-open');
       const handle = which === 'kick' ? state.kick : state.twitch;
       if(!handle){ showToast('Set a ' + which + ' channel first'); return; }
-      const url = which === 'kick' ? 'https://kick.com/' + handle + '/chatroom' : 'https://www.twitch.tv/popout/' + handle + '/chat';
+      const url = which === 'kick' ? 'https://kick.com/popout/' + handle + '/chat' : 'https://www.twitch.tv/popout/' + handle + '/chat';
       window.open(url, '_blank');
     });
   });
@@ -491,17 +583,23 @@
       stage.classList.add(layout);
       kickPane.style.flex = '1 1 50%';
       twitchPane.style.flex = '1 1 50%';
+      applyMobileClass();
     });
   });
 
   // Swap panels
   document.getElementById('swapBtn').addEventListener('click', ()=>{
-    const parent = stage;
-    const firstChild = parent.firstElementChild;
-    // order: kickPane, divider, twitchPane, (activity-rail excluded)
-    const nodes = [kickPane, divider, twitchPane];
-    parent.insertBefore(twitchPane, kickPane);
+    stage.insertBefore(twitchPane, kickPane);
     showToast('Panels swapped');
+  });
+
+  // Focus / clean mode
+  const focusBtn = document.getElementById('focusBtn');
+  focusBtn.addEventListener('click', ()=>{
+    const on = stage.classList.toggle('focus-mode');
+    focusBtn.classList.toggle('active', on);
+    document.getElementById('setupBar').classList.toggle('collapsed', on);
+    showToast(on ? 'Focus mode: clean chat view' : 'Focus mode off');
   });
 
   // Fullscreen
@@ -525,6 +623,107 @@
   }
   railBtn.addEventListener('click', ()=>toggleRail());
   railScrim.addEventListener('click', ()=>toggleRail(false));
+
+  // ---------- LIVE / WATCH NOW SYSTEM ----------
+  const liveBanner = document.getElementById('liveBanner');
+  const liveTab = document.getElementById('liveTab');
+  const bannerClose = document.getElementById('bannerClose');
+  const liveToggleBtn = document.getElementById('liveToggleBtn');
+  const liveSw = document.getElementById('liveSw');
+  const liveSub = document.getElementById('liveSub');
+  const autoStatus = document.getElementById('autoStatus');
+  let bannerDismissed = false;
+
+  function renderLiveState(){
+    liveToggleBtn.classList.toggle('on', state.live);
+    liveSw.classList.toggle('on', state.live);
+    if(state.live && !bannerDismissed){
+      liveBanner.classList.remove('hidden');
+      liveTab.classList.remove('show');
+    } else if(state.live && bannerDismissed){
+      liveBanner.classList.add('hidden');
+      liveTab.classList.add('show');
+    } else {
+      liveBanner.classList.add('hidden');
+      liveTab.classList.remove('show');
+    }
+  }
+
+  function setLive(isLive, source){
+    state.live = isLive;
+    liveSub.textContent = isLive ? ('watch on Kick or Twitch' + (source ? ' · ' + source : '')) : '';
+    renderLiveState();
+  }
+
+  liveToggleBtn.addEventListener('click', ()=>{
+    bannerDismissed = false;
+    setLive(!state.live, 'manual');
+    showToast(state.live ? 'Marked Krusty as live' : 'Marked Krusty as offline');
+  });
+  liveSw.addEventListener('click', ()=>{
+    bannerDismissed = false;
+    setLive(!state.live, 'manual');
+  });
+  bannerClose.addEventListener('click', ()=>{
+    bannerDismissed = true;
+    renderLiveState();
+    showToast('Live banner hidden — tap the LIVE tab to bring it back');
+  });
+  liveTab.addEventListener('click', ()=>{
+    bannerDismissed = false;
+    renderLiveState();
+  });
+
+  // Best-effort automatic Kick live check (no API key — may be blocked by CORS, falls back silently to manual)
+  async function checkKickLive(){
+    if(!state.kick){ autoStatus.textContent = 'set a Kick channel to enable auto-check'; return; }
+    autoStatus.textContent = 'auto-checking Kick…';
+    try{
+      const res = await fetch('https://kick.com/api/v2/channels/' + state.kick, {mode:'cors'});
+      if(!res.ok) throw new Error('bad status');
+      const data = await res.json();
+      const isLive = !!(data && data.livestream);
+      autoStatus.textContent = 'auto-check: Kick API reachable';
+      if(isLive){ bannerDismissed = false; setLive(true, 'auto via Kick'); }
+    } catch(err){
+      autoStatus.textContent = 'auto-check unavailable in this browser — use the manual switch above';
+    }
+  }
+  setInterval(checkKickLive, 90000);
+
+  // Draggable divider
+  let dragging = false;
+  function startDrag(e){
+    if(kickPane.classList.contains('hidden-pane') || twitchPane.classList.contains('hidden-pane')) return;
+    dragging = true;
+    document.body.style.userSelect = 'none';
+  }
+  function stopDrag(){ dragging = false; document.body.style.userSelect = ''; }
+  function onDrag(clientX, clientY){
+    if(!dragging) return;
+    const rect = stage.getBoundingClientRect();
+    const isVertical = stage.classList.contains('vertical');
+    let ratio;
+    if(isVertical){
+      ratio = (clientX - rect.left) / rect.width;
+    } else {
+      ratio = (clientY - rect.top) / rect.height;
+    }
+    ratio = Math.min(0.85, Math.max(0.15, ratio));
+    const paneChildren = Array.from(stage.children).filter(c=>c.classList.contains('pane'));
+    paneChildren[0].style.flex = '1 1 ' + (ratio*100) + '%';
+    paneChildren[1].style.flex = '1 1 ' + ((1-ratio)*100) + '%';
+  }
+  divider.addEventListener('mousedown', startDrag);
+  window.addEventListener('mousemove', e=>onDrag(e.clientX, e.clientY));
+  window.addEventListener('mouseup', stopDrag);
+  divider.addEventListener('touchstart', e=>{ startDrag(); }, {passive:true});
+  window.addEventListener('touchmove', e=>{
+    if(!dragging) return;
+    const t = e.touches[0];
+    onDrag(t.clientX, t.clientY);
+  }, {passive:true});
+  window.addEventListener('touchend', stopDrag);
 
   // Demo notifications
   const demoSwitch = document.getElementById('demoSwitch');
@@ -567,42 +766,6 @@
     }
   });
 
-  // Draggable divider
-  let dragging = false;
-  function startDrag(e){
-    if(kickPane.classList.contains('hidden-pane') || twitchPane.classList.contains('hidden-pane')) return;
-    dragging = true;
-    document.body.style.userSelect = 'none';
-  }
-  function stopDrag(){ dragging = false; document.body.style.userSelect = ''; }
-  function onDrag(clientX, clientY){
-    if(!dragging) return;
-    const rect = stage.getBoundingClientRect();
-    const isVertical = stage.classList.contains('vertical');
-    let ratio;
-    if(isVertical){
-      ratio = (clientX - rect.left) / rect.width;
-    } else {
-      ratio = (clientY - rect.top) / rect.height;
-    }
-    ratio = Math.min(0.85, Math.max(0.15, ratio));
-    const [firstPane, , secondPane] = Array.from(stage.children).filter(c=>c.classList && c.classList.contains('pane'));
-    // determine current visual order
-    const paneChildren = Array.from(stage.children).filter(c=>c.classList.contains('pane'));
-    paneChildren[0].style.flex = '1 1 ' + (ratio*100) + '%';
-    paneChildren[1].style.flex = '1 1 ' + ((1-ratio)*100) + '%';
-  }
-  divider.addEventListener('mousedown', startDrag);
-  window.addEventListener('mousemove', e=>onDrag(e.clientX, e.clientY));
-  window.addEventListener('mouseup', stopDrag);
-  divider.addEventListener('touchstart', e=>{ startDrag(); }, {passive:true});
-  window.addEventListener('touchmove', e=>{
-    if(!dragging) return;
-    const t = e.touches[0];
-    onDrag(t.clientX, t.clientY);
-  }, {passive:true});
-  window.addEventListener('touchend', stopDrag);
-
   // mobile stacking helper class
   function applyMobileClass(){
     if(window.innerWidth <= 760 && stage.classList.contains('vertical')){
@@ -613,6 +776,9 @@
   }
   window.addEventListener('resize', applyMobileClass);
   applyMobileClass();
+
+  // Auto-load Krusty's channels on first open
+  loadChats();
 })();
 </script>
 </body>
