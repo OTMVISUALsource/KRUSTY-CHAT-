@@ -323,7 +323,7 @@
   .activity-rail.closed{margin-right:-301px;}
   .rail-head{
     padding:12px 14px; border-bottom:1px solid var(--border-soft);
-    display:flex; align-items:center; justify-content:space-between; flex-shrink:0;
+    display:flex; flex-direction:column; gap:2px; flex-shrink:0;
   }
   .rail-head h2{margin:0; font-size:13px; font-family:'Space Grotesk',sans-serif; font-weight:700;}
   .rail-head .sub{font-size:10.5px; color:var(--muted-2); font-family:'JetBrains Mono',monospace; margin-top:2px;}
@@ -364,6 +364,79 @@
   }
   .live-settings .row{display:flex; align-items:center; justify-content:space-between; font-size:11.5px; color:var(--muted);}
   .live-settings .status{font-size:10px; color:var(--muted-2); font-family:'JetBrains Mono',monospace;}
+
+  /* ---------- GIFT / SUB / CHEER POP-UP ALERTS (over the chat, auto-fade) ---------- */
+  .gift-alerts{
+    position:absolute; top:12px; right:12px; z-index:60;
+    display:flex; flex-direction:column; gap:8px; width:min(78vw, 280px);
+    pointer-events:none;
+  }
+  .gift-alert-card{
+    pointer-events:auto; display:flex; align-items:center; gap:10px;
+    background:rgba(15,16,18,0.96); border:1px solid var(--border-soft); border-radius:11px;
+    padding:10px 12px; box-shadow:0 10px 28px rgba(0,0,0,0.45); backdrop-filter:blur(8px);
+    animation:giftIn .32s cubic-bezier(.2,.8,.2,1) both;
+    opacity:1; transform:translateX(0);
+    transition:opacity .4s ease, transform .4s ease, max-height .4s ease, margin .4s ease, padding .4s ease;
+  }
+  .gift-alert-card.kick{border-color:rgba(83,252,24,0.4); box-shadow:0 10px 28px rgba(83,252,24,0.08);}
+  .gift-alert-card.twitch{border-color:rgba(145,70,255,0.45); box-shadow:0 10px 28px rgba(145,70,255,0.1);}
+  .gift-alert-card.fade-out{opacity:0; transform:translateX(24px); max-height:0; margin:0; padding-top:0; padding-bottom:0; overflow:hidden;}
+  @keyframes giftIn{ from{opacity:0; transform:translateX(24px) scale(.96);} to{opacity:1; transform:translateX(0) scale(1);} }
+  .gift-alert-icon{
+    width:30px; height:30px; border-radius:8px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    font-size:14px; background:var(--surface-2); border:1px solid var(--border);
+  }
+  .gift-alert-card.kick .gift-alert-icon{background:rgba(83,252,24,0.14); border-color:rgba(83,252,24,0.3);}
+  .gift-alert-card.twitch .gift-alert-icon{background:rgba(145,70,255,0.16); border-color:rgba(145,70,255,0.35);}
+  .gift-alert-body{min-width:0; flex:1;}
+  .gift-alert-top{display:flex; align-items:center; gap:6px; margin-bottom:1px;}
+  .gift-alert-plat{font-family:'Space Grotesk',sans-serif; font-size:8.5px; font-weight:700; padding:1px 5px; border-radius:4px; flex-shrink:0;}
+  .gift-alert-card.kick .gift-alert-plat{background:var(--kick); color:#000;}
+  .gift-alert-card.twitch .gift-alert-plat{background:var(--twitch); color:#fff;}
+  .gift-alert-kind{font-size:9px; color:var(--muted-2); text-transform:uppercase; letter-spacing:0.03em; font-weight:700;}
+  .gift-alert-name{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .gift-alert-desc{font-size:11.5px; color:var(--muted); line-height:1.3; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+
+  /* Small persistent "recent" tab so nothing's lost once alerts fade */
+  .recent-gifts-btn{
+    position:absolute; top:12px; left:12px; z-index:60;
+    display:flex; align-items:center; gap:5px; height:30px; padding:0 10px; border-radius:20px;
+    background:rgba(15,16,18,0.9); border:1px solid var(--border); color:var(--muted); cursor:pointer;
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:11.5px; backdrop-filter:blur(6px);
+    transition:.15s;
+  }
+  .recent-gifts-btn.has-items{color:var(--text); border-color:#4A4B4E;}
+  .recent-gifts-btn .rg-count{
+    background:linear-gradient(90deg, var(--kick), var(--twitch)); color:#000; border-radius:10px;
+    font-size:10px; padding:1px 6px; min-width:16px; text-align:center; display:none;
+  }
+  .recent-gifts-btn.has-items .rg-count{display:inline-block;}
+  .recent-gifts-panel{
+    position:absolute; top:50px; left:12px; z-index:61; width:min(84vw, 300px); max-height:min(60vh, 420px);
+    background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:0 16px 40px rgba(0,0,0,0.5);
+    display:flex; flex-direction:column; overflow:hidden;
+    opacity:0; transform:translateY(-6px); pointer-events:none; transition:.18s ease;
+  }
+  .recent-gifts-panel.show{opacity:1; transform:translateY(0); pointer-events:auto;}
+  .recent-gifts-panel-head{
+    padding:10px 12px; border-bottom:1px solid var(--border-soft); font-family:'Space Grotesk',sans-serif;
+    font-weight:700; font-size:12.5px; display:flex; align-items:center; justify-content:space-between;
+  }
+  .recent-gifts-panel-head .clear-btn{background:none; border:none; color:var(--muted-2); font-size:10.5px; cursor:pointer; font-family:'Inter',sans-serif;}
+  .recent-gifts-list{overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:6px;}
+  .recent-gifts-empty{padding:20px 14px; text-align:center; color:var(--muted-2); font-size:12px; line-height:1.5;}
+  .recent-gift-row{
+    display:flex; align-items:center; gap:8px; padding:8px 9px; border-radius:8px;
+    background:var(--surface-2); border:1px solid var(--border-soft); font-size:12px;
+  }
+  .recent-gift-row .plat{font-family:'Space Grotesk',sans-serif; font-size:8.5px; font-weight:700; padding:1px 5px; border-radius:4px; flex-shrink:0;}
+  .recent-gift-row.kick .plat{background:var(--kick); color:#000;}
+  .recent-gift-row.twitch .plat{background:var(--twitch); color:#fff;}
+  .recent-gift-row .rg-body{min-width:0; flex:1;}
+  .recent-gift-row .rg-name{font-weight:700; color:var(--text); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .recent-gift-row .rg-desc{font-size:11px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .recent-gift-row .rg-time{font-size:9.5px; color:var(--muted-2); font-family:'JetBrains Mono',monospace; flex-shrink:0;}
 
   /* ---------- MERGED VIEW ---------- */
   .merged-pane{
@@ -672,14 +745,28 @@
     <button class="jump-latest" id="jumpLatest">↓ New messages</button>
   </div>
 
+  <div class="gift-alerts" id="giftAlerts"></div>
+
+  <button class="recent-gifts-btn" id="recentGiftsBtn" title="Recent gifts, subs & cheers">
+    🎁 <span class="rg-count" id="recentGiftsCount">0</span>
+  </button>
+  <div class="recent-gifts-panel" id="recentGiftsPanel">
+    <div class="recent-gifts-panel-head">
+      <span>Recent gifts &amp; subs</span>
+      <button class="clear-btn" id="clearGiftsBtn">Clear</button>
+    </div>
+    <div class="recent-gifts-list" id="recentGiftsList">
+      <div class="recent-gifts-empty" id="recentGiftsEmpty">Nothing yet — gifted subs, new subs, cheers and Kick gifts will show up here as they happen.</div>
+    </div>
+  </div>
+
   <div class="activity-rail closed" id="rail">
     <div class="rail-head">
-      <div>
-        <h2>Community</h2>
-        <div class="sub" id="railSub">Krusty's socials &amp; communities</div>
-      </div>
+      <h2>Community</h2>
+      <div class="sub" id="railSub">Krusty's socials &amp; communities</div>
     </div>
-    <div class="rail-feed community-feed" id="railFeed">
+
+    <div class="rail-feed community-feed" id="communityPanel">
       <a class="community-card" href="https://x.com/krustyvlogs?s=11" target="_blank" rel="noopener">
         <span class="community-icon">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
@@ -701,12 +788,13 @@
         <span class="community-go">↗</span>
       </a>
     </div>
+
     <div class="live-settings">
       <div class="row"><span>Mark Krusty live</span><div class="sw" id="liveSw"></div></div>
       <div class="status" id="autoStatus">auto-checking Kick…</div>
     </div>
     <div class="rail-foot">
-      <p>Kick's live status auto-checks in the background every 90s. Twitch has no key-free way to check live status, so use the manual switch above if needed.</p>
+      <p id="railFootNote">Kick's live status auto-checks in the background every 90s. Twitch has no key-free way to check live status, so use the manual switch above if needed.</p>
     </div>
   </div>
 </div>
@@ -1333,6 +1421,171 @@
     return tags;
   }
 
+  // ---------- REAL GIFT / SUB / CHEER ALERTS (no API key) ----------
+  // Twitch: delivered as USERNOTICE lines and a "bits" tag on PRIVMSG, over the same anonymous
+  // IRC connection already used for chat — no separate socket or OAuth app required.
+  // Kick: delivered on the public per-channel Pusher channel that sits alongside the chatroom
+  // channel already used for chat. Field names below are reverse-engineered from Kick's own
+  // front-end (undocumented), so every read here is defensive and just skips quietly if a
+  // field Kick sends doesn't match what's expected.
+  const giftAlerts = document.getElementById('giftAlerts');
+  const recentGiftsBtn = document.getElementById('recentGiftsBtn');
+  const recentGiftsPanel = document.getElementById('recentGiftsPanel');
+  const recentGiftsList = document.getElementById('recentGiftsList');
+  const recentGiftsEmpty = document.getElementById('recentGiftsEmpty');
+  const recentGiftsCount = document.getElementById('recentGiftsCount');
+  const clearGiftsBtn = document.getElementById('clearGiftsBtn');
+
+  const ALERT_LIFETIME_MS = 10000;
+  const MAX_STACKED_ALERTS = 4;
+  const MAX_HISTORY = 60;
+  let giftHistory = [];
+  let unseenGifts = 0;
+
+  const KIND_ICON = {
+    'New Sub':'⭐','Resub':'🔁','Gift Sub':'🎁','Gift Subs':'🎁','Gift Bomb':'🎉',
+    'Upgrade':'⬆️','Raid':'🚀','Cheer':'💎','Kick Gift':'🎁'
+  };
+
+  function addActivityItem(platform, kind, user, desc){
+    const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+
+    // 1) Pop it up over the chat for a bit
+    const card = document.createElement('div');
+    card.className = 'gift-alert-card ' + platform;
+    card.innerHTML =
+      '<span class="gift-alert-icon">' + (KIND_ICON[kind] || '🎁') + '</span>' +
+      '<span class="gift-alert-body">' +
+        '<span class="gift-alert-top"><span class="gift-alert-plat">' + platform.toUpperCase() + '</span><span class="gift-alert-kind">' + escapeHtml(kind) + '</span></span>' +
+        '<span class="gift-alert-name">' + escapeHtml(user) + '</span>' +
+        '<span class="gift-alert-desc">' + escapeHtml(desc) + '</span>' +
+      '</span>';
+    giftAlerts.prepend(card);
+    // Keep the stack from growing unbounded — retire the oldest visible card early if too many pile up.
+    const cards = giftAlerts.querySelectorAll('.gift-alert-card:not(.fade-out)');
+    if(cards.length > MAX_STACKED_ALERTS){
+      const oldest = cards[cards.length - 1];
+      retireAlertCard(oldest);
+    }
+    const dismissTimer = setTimeout(()=>retireAlertCard(card), ALERT_LIFETIME_MS);
+    card.dataset.timerSet = '1';
+    card._dismissTimer = dismissTimer;
+
+    // 2) Keep it in the persistent "recent" history so it isn't lost once it fades
+    giftHistory.unshift({ platform, kind, user, desc, time });
+    if(giftHistory.length > MAX_HISTORY){ giftHistory.length = MAX_HISTORY; }
+    unseenGifts++;
+    renderRecentGiftsButton();
+    if(recentGiftsPanel.classList.contains('show')){ renderRecentGiftsList(); }
+  }
+
+  function retireAlertCard(card){
+    if(!card || card.classList.contains('fade-out')) return;
+    if(card._dismissTimer){ clearTimeout(card._dismissTimer); }
+    card.classList.add('fade-out');
+    setTimeout(()=>{ if(card.parentNode){ card.parentNode.removeChild(card); } }, 420);
+  }
+
+  function renderRecentGiftsButton(){
+    recentGiftsCount.textContent = String(unseenGifts > 99 ? '99+' : unseenGifts);
+    recentGiftsBtn.classList.toggle('has-items', giftHistory.length > 0);
+  }
+
+  function renderRecentGiftsList(){
+    recentGiftsList.innerHTML = '';
+    if(!giftHistory.length){
+      recentGiftsList.appendChild(recentGiftsEmpty);
+      return;
+    }
+    giftHistory.forEach(item=>{
+      const row = document.createElement('div');
+      row.className = 'recent-gift-row ' + item.platform;
+      row.innerHTML =
+        '<span class="plat">' + item.platform.toUpperCase() + '</span>' +
+        '<span class="rg-body"><span class="rg-name">' + escapeHtml(item.user) + '</span><span class="rg-desc">' + escapeHtml(item.desc) + '</span></span>' +
+        '<span class="rg-time">' + item.time + '</span>';
+      recentGiftsList.appendChild(row);
+    });
+  }
+
+  recentGiftsBtn.addEventListener('click', ()=>{
+    const opening = !recentGiftsPanel.classList.contains('show');
+    recentGiftsPanel.classList.toggle('show', opening);
+    if(opening){
+      renderRecentGiftsList();
+      unseenGifts = 0;
+      renderRecentGiftsButton();
+    }
+  });
+  clearGiftsBtn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    giftHistory = [];
+    unseenGifts = 0;
+    renderRecentGiftsButton();
+    renderRecentGiftsList();
+  });
+  document.addEventListener('click', (e)=>{
+    if(!recentGiftsPanel.classList.contains('show')) return;
+    if(recentGiftsPanel.contains(e.target) || recentGiftsBtn.contains(e.target)) return;
+    recentGiftsPanel.classList.remove('show');
+  });
+
+  function handleTwitchUserNotice(tags, systemMsg){
+    const kind = tags['msg-id'] || '';
+    const name = tags['display-name'] || tags['login'] || 'someone';
+    if(kind === 'sub' || kind === 'resub'){
+      const months = tags['msg-param-cumulative-months'];
+      addActivityItem('twitch', kind === 'resub' ? 'Resub' : 'New Sub', name,
+        months ? 'Subscribed — ' + months + ' month' + (months === '1' ? '' : 's') + ' total' : 'Subscribed');
+    } else if(kind === 'subgift' || kind === 'anonsubgift'){
+      const recipient = tags['msg-param-recipient-display-name'] || tags['msg-param-recipient-user-name'] || 'a viewer';
+      addActivityItem('twitch', 'Gift Sub', name, 'Gifted a sub to ' + recipient);
+    } else if(kind === 'submysterygift'){
+      const count = tags['msg-param-mass-gift-count'] || '1';
+      addActivityItem('twitch', 'Gift Bomb', name, 'Gifted ' + count + ' subs to the community');
+    } else if(kind === 'giftpaidupgrade' || kind === 'primepaidupgrade'){
+      addActivityItem('twitch', 'Upgrade', name, 'Converted their gifted/Prime sub to a paid sub');
+    } else if(kind === 'raid'){
+      const count = tags['msg-param-viewerCount'] || '?';
+      addActivityItem('twitch', 'Raid', name, 'Raided with ' + count + ' viewers');
+    } else if(systemMsg){
+      // Fallback for any other Twitch USERNOTICE kind — still worth surfacing, just generic.
+      addActivityItem('twitch', kind || 'Event', name, systemMsg);
+    }
+  }
+
+  function handleTwitchBits(tags){
+    const bits = tags['bits'];
+    if(!bits) return;
+    const name = tags['display-name'] || 'someone';
+    addActivityItem('twitch', 'Cheer', name, 'Cheered ' + bits + ' bits');
+  }
+
+  function handleKickChannelEvent(eventName, dataRaw){
+    let payload;
+    try{ payload = typeof dataRaw === 'string' ? JSON.parse(dataRaw) : dataRaw; } catch(err){ return; }
+    if(!payload) return;
+    if(eventName.indexOf('GiftedSubscriptionsEvent') !== -1){
+      const gifter = payload.gifter_username || (payload.gifter && payload.gifter.username) || 'someone';
+      const recipients = payload.gifted_usernames || payload.usernames || [];
+      const count = Array.isArray(recipients) ? recipients.length : (payload.quantity || payload.gift_count || 1);
+      addActivityItem('kick', count > 1 ? 'Gift Subs' : 'Gift Sub', gifter, 'Gifted ' + count + ' sub' + (count === 1 ? '' : 's') +
+        (Array.isArray(recipients) && recipients.length && recipients.length <= 3 ? ' to ' + recipients.join(', ') : ' to the community'));
+    } else if(eventName.indexOf('SubscriptionEvent') !== -1 && eventName.indexOf('Gifted') === -1){
+      const name = payload.username || (payload.user && payload.user.username) || 'someone';
+      const months = payload.months || payload.duration;
+      addActivityItem('kick', 'New Sub', name, months ? 'Subscribed — ' + months + ' months' : 'Subscribed');
+    } else if(/gift/i.test(eventName)){
+      // Catch-all for Kick's "Kicks" gift currency — event name/shape isn't publicly documented,
+      // so this reads several plausible field names and skips quietly if none match.
+      const sender = (payload.sender && payload.sender.username) || payload.gifter_username ||
+        (payload.user && payload.user.username) || payload.username || 'someone';
+      const giftName = (payload.gift && (payload.gift.name || payload.gift.gift_name)) || payload.gift_name || payload.name || 'a gift';
+      const qty = payload.quantity || payload.amount || (payload.gift && payload.gift.amount) || 1;
+      addActivityItem('kick', 'Kick Gift', sender, 'Sent ' + qty + 'x ' + giftName);
+    }
+  }
+
   function connectTwitch(channel){
     if(twitchSocket){ try{ twitchSocket.close(); }catch(e){} }
     if(!channel) return;
@@ -1365,6 +1618,13 @@
             text: m[3],
             emotesTag: tags['emotes'] || null
           });
+          handleTwitchBits(tags);
+          return;
+        }
+        const un = line.match(/^@([^ ]+) :tmi\.twitch\.tv USERNOTICE #\S+(?: :(.*))?$/);
+        if(un){
+          const tags = parseTwitchTags(un[1]);
+          handleTwitchUserNotice(tags, tags['system-msg'] || un[2]);
         }
       });
     };
@@ -1381,12 +1641,13 @@
     if(kickSocket){ try{ kickSocket.close(); }catch(e){} kickSocket = null; }
     if(!channel) return;
     setChip(kickChip, kickChipText, 'Kick: connecting…', 'connecting');
-    let chatroomId;
+    let chatroomId, channelId;
     try{
       const res = await fetch('https://kick.com/api/v2/channels/' + channel);
       if(!res.ok) throw new Error('lookup failed');
       const data = await res.json();
       chatroomId = data && data.chatroom && data.chatroom.id;
+      channelId = data && data.id;
       if(!chatroomId) throw new Error('no chatroom id');
     } catch(err){
       setChip(kickChip, kickChipText, 'Kick: unavailable in this browser', 'failed');
@@ -1402,6 +1663,10 @@
     kickSocket = sock;
     sock.onopen = ()=>{
       sock.send(JSON.stringify({event:'pusher:subscribe', data:{channel:'chatrooms.' + chatroomId + '.v2'}}));
+      // Sibling public channel that carries gift-sub / sub events — same socket, no extra auth.
+      if(channelId){
+        sock.send(JSON.stringify({event:'pusher:subscribe', data:{channel:'channel.' + channelId}}));
+      }
     };
     sock.onmessage = (e)=>{
       let outer;
@@ -1420,6 +1685,10 @@
             text: payload.content || ''
           });
         } catch(err){}
+        return;
+      }
+      if(outer.event && outer.event.indexOf('App\\Events\\') === 0){
+        handleKickChannelEvent(outer.event, outer.data);
       }
     };
     sock.onclose = ()=>{
