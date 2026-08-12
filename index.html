@@ -321,10 +321,6 @@
   }
   .rail-head h2{margin:0; font-size:13px; font-family:'Space Grotesk',sans-serif; font-weight:700;}
   .rail-head .sub{font-size:10.5px; color:var(--muted-2); font-family:'JetBrains Mono',monospace; margin-top:2px;}
-  .demo-switch{
-    display:flex; align-items:center; gap:6px; font-size:10.5px; color:var(--muted); cursor:pointer;
-    user-select:none;
-  }
   .sw{width:30px; height:17px; border-radius:20px; background:var(--surface-2); border:1px solid var(--border); position:relative; transition:.15s;}
   .sw::after{content:''; position:absolute; width:12px; height:12px; border-radius:50%; background:var(--muted-2); top:2px; left:2px; transition:.15s;}
   .sw.on{background:rgba(145,70,255,0.25); border-color:var(--twitch);}
@@ -333,27 +329,23 @@
   .rail-feed{flex:1; overflow-y:auto; padding:10px; display:flex; flex-direction:column; gap:8px;}
   .rail-feed::-webkit-scrollbar{width:6px;}
   .rail-feed::-webkit-scrollbar-thumb{background:var(--border); border-radius:3px;}
-  .feed-item{
-    padding:10px; border-radius:8px; border:1px solid var(--border-soft);
-    background:var(--surface-2); font-size:12px; animation:slideIn .25s ease;
-  }
-  @keyframes slideIn{from{opacity:0; transform:translateY(-6px);} to{opacity:1; transform:translateY(0);}}
-  .feed-item .top{display:flex; align-items:center; gap:6px; margin-bottom:4px;}
-  .feed-item .plat{
-    font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:700; padding:1px 6px; border-radius:4px;
-  }
-  .feed-item.kick .plat{background:var(--kick); color:#000;}
-  .feed-item.twitch .plat{background:var(--twitch); color:#fff;}
-  .feed-item .user{font-weight:600; color:var(--text); font-size:12px;}
-  .feed-item .desc{color:var(--muted); font-size:11.5px; line-height:1.4;}
-  .feed-item .time{margin-left:auto; color:var(--muted-2); font-size:10px; font-family:'JetBrains Mono',monospace;}
 
-  .rail-empty{
-    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    color:var(--muted-2); text-align:center; padding:24px; gap:8px;
+  .community-feed{padding:12px; gap:10px;}
+  .community-card{
+    display:flex; align-items:center; gap:12px; padding:12px; border-radius:10px;
+    border:1px solid var(--border-soft); background:var(--surface-2); text-decoration:none;
+    transition:.15s; animation:slideIn .25s ease;
   }
-  .rail-empty .glyph{font-size:20px; opacity:.5;}
-  .rail-empty p{font-size:12px; line-height:1.5; margin:0; max-width:200px;}
+  .community-card:hover, .community-card:active{border-color:#4A4B4E; background:#1B1C1E;}
+  .community-icon{
+    width:36px; height:36px; border-radius:9px; background:#000; border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; color:var(--text); flex-shrink:0;
+  }
+  .community-body{display:flex; flex-direction:column; gap:2px; min-width:0; flex:1;}
+  .community-title{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; color:var(--text);}
+  .community-sub{font-size:11.5px; color:var(--muted); font-family:'JetBrains Mono',monospace; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .community-go{color:var(--muted-2); font-size:14px; flex-shrink:0;}
+  @keyframes slideIn{from{opacity:0; transform:translateY(-6px);} to{opacity:1; transform:translateY(0);}}
 
   .rail-foot{
     padding:10px 12px; border-top:1px solid var(--border-soft); flex-shrink:0;
@@ -558,7 +550,7 @@
     <button class="icon-btn live-toggle" id="liveToggleBtn" title="Mark Krusty as live">🔴</button>
     <button class="icon-btn" id="focusBtn" title="Clean / focus mode">✦</button>
     <button class="icon-btn" id="swapBtn" title="Swap panels">⇄</button>
-    <button class="icon-btn" id="railBtn" title="Activity feed">🔔</button>
+    <button class="icon-btn" id="railBtn" title="Community">👥</button>
     <button class="icon-btn" id="fsBtn" title="Fullscreen">⛶</button>
   </div>
 </header>
@@ -567,12 +559,12 @@
   <div class="viewer-chip kick" id="kickViewerChip">
     <span class="vplat">KICK</span>
     <span class="vcount" id="kickViewerCount">–</span>
-    <span class="vlabel">viewers</span>
+    <span class="vlabel" id="kickViewerLabel">viewers</span>
   </div>
   <div class="viewer-chip twitch" id="twitchViewerChip">
     <span class="vplat">TWITCH</span>
     <span class="vcount" id="twitchViewerCount">–</span>
-    <span class="vlabel">viewers</span>
+    <span class="vlabel" id="twitchViewerLabel">viewers</span>
   </div>
   <div class="viewer-chip combined hidden" id="combinedViewerChip">
     <span class="vplat">COMBINED</span>
@@ -672,23 +664,38 @@
   <div class="activity-rail closed" id="rail">
     <div class="rail-head">
       <div>
-        <h2>Live activity</h2>
-        <div class="sub" id="railSub">gifts · subs · kick points</div>
+        <h2>Community</h2>
+        <div class="sub" id="railSub">Krusty's socials &amp; communities</div>
       </div>
-      <div class="demo-switch" id="demoSwitch"><div class="sw" id="demoSw"></div>Demo</div>
     </div>
-    <div class="rail-feed" id="railFeed">
-      <div class="rail-empty" id="railEmpty">
-        <div class="glyph">🔕</div>
-        <p>No live events connected yet. Flip <b>Demo</b> on to preview how alerts will look, or connect your Twitch &amp; Kick API keys for the real thing.</p>
-      </div>
+    <div class="rail-feed community-feed" id="railFeed">
+      <a class="community-card" href="https://x.com/krustyvlogs?s=11" target="_blank" rel="noopener">
+        <span class="community-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </span>
+        <span class="community-body">
+          <span class="community-title">Krusty Official</span>
+          <span class="community-sub">@krustyvlogs on X</span>
+        </span>
+        <span class="community-go">↗</span>
+      </a>
+      <a class="community-card" href="https://x.com/i/communities/1803517321698214104" target="_blank" rel="noopener">
+        <span class="community-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </span>
+        <span class="community-body">
+          <span class="community-title">Kanel Community</span>
+          <span class="community-sub">Join the X community</span>
+        </span>
+        <span class="community-go">↗</span>
+      </a>
     </div>
     <div class="live-settings">
       <div class="row"><span>Mark Krusty live</span><div class="sw" id="liveSw"></div></div>
       <div class="status" id="autoStatus">auto-checking Kick…</div>
     </div>
     <div class="rail-foot">
-      <p>Real gift / sub / kick-points alerts need your own Twitch &amp; Kick developer app + OAuth token. The live check above is a best-effort Kick lookup with a manual switch as backup — Twitch has no key-free way to check live status.</p>
+      <p>Kick's live status auto-checks in the background every 90s. Twitch has no key-free way to check live status, so use the manual switch above if needed.</p>
     </div>
   </div>
 </div>
@@ -1037,6 +1044,7 @@
   const combinedViewerChip = document.getElementById('combinedViewerChip');
   const combineBtn = document.getElementById('combineBtn');
   let viewerCounts = { kick: null, twitch: null };
+  let viewerStatus = { kick: 'idle', twitch: 'idle' };
   let combineOn = false;
 
   function fmtCount(n){
@@ -1046,9 +1054,20 @@
     return String(n);
   }
 
+  // Distinct label per status so "no stream right now" reads differently from "couldn't reach it"
+  const STATUS_LABEL = {
+    idle: 'no channel set',
+    live: 'viewers',
+    offline: 'channel offline',
+    error: 'unreachable here',
+    not_found: 'channel not found'
+  };
+
   function renderViewerCounts(){
     kickViewerCountEl.textContent = fmtCount(viewerCounts.kick);
     twitchViewerCountEl.textContent = fmtCount(viewerCounts.twitch);
+    document.getElementById('kickViewerLabel').textContent = STATUS_LABEL[viewerStatus.kick] || 'viewers';
+    document.getElementById('twitchViewerLabel').textContent = STATUS_LABEL[viewerStatus.twitch] || 'viewers';
     const total = (viewerCounts.kick || 0) + (viewerCounts.twitch || 0);
     const haveAny = viewerCounts.kick !== null || viewerCounts.twitch !== null;
     combinedViewerCountEl.textContent = haveAny ? fmtCount(total) : '–';
@@ -1072,42 +1091,62 @@
 
   // Kick exposes live viewer_count on the same public channel endpoint used for the live check.
   async function fetchKickViewers(channel){
-    if(!channel){ viewerCounts.kick = null; renderViewerCounts(); return; }
+    if(!channel){ viewerCounts.kick = null; viewerStatus.kick = 'idle'; renderViewerCounts(); return; }
     try{
       const res = await fetch('https://kick.com/api/v2/channels/' + channel);
       if(!res.ok) throw new Error('bad status');
       const data = await res.json();
-      viewerCounts.kick = (data && data.livestream && typeof data.livestream.viewer_count === 'number') ? data.livestream.viewer_count : null;
+      if(data && data.livestream && typeof data.livestream.viewer_count === 'number'){
+        viewerCounts.kick = data.livestream.viewer_count;
+        viewerStatus.kick = 'live';
+      } else {
+        viewerCounts.kick = null;
+        viewerStatus.kick = 'offline';
+      }
     } catch(err){
       viewerCounts.kick = null;
+      viewerStatus.kick = 'error';
     }
     renderViewerCounts();
   }
 
-  // Twitch has no key-free official endpoint for viewer counts. This uses Twitch's own public web
+  // Twitch has no key-free official endpoint for viewer counts. This calls Twitch's own public web
   // GraphQL gateway with the open-source "web client" ID that ships in Twitch's own front-end JS —
-  // the same anonymous, read-only technique used by open-source tools like Chatterino/Streamlink to
-  // read public stream info without an OAuth app. It may be rate-limited or blocked by the browser;
-  // fails silently to "–" if so.
+  // the same anonymous, read-only technique open-source tools like Chatterino/Streamlink use to read
+  // public stream info without an OAuth app. A raw HTML fetch of twitch.tv can't be used instead: Twitch
+  // doesn't send CORS headers on the page itself, so the browser blocks that request outright before any
+  // content comes back — the GQL endpoint below is what actually allows the cross-origin read.
+  // We send the query text directly rather than as a "persisted query" hash, since those hashes are
+  // internal implementation details Twitch rotates over time and a stale one fails silently.
   const TWITCH_PUBLIC_CLIENT_ID = 'kimne78kx3ncx6brgo4mv6wki5h1ko';
+  const TWITCH_VIEWER_QUERY = 'query($login:String!){user(login:$login){stream{viewersCount}}}';
   async function fetchTwitchViewers(channel){
-    if(!channel){ viewerCounts.twitch = null; renderViewerCounts(); return; }
+    if(!channel){ viewerCounts.twitch = null; viewerStatus.twitch = 'idle'; renderViewerCounts(); return; }
     try{
       const res = await fetch('https://gql.twitch.tv/gql', {
         method:'POST',
         headers:{ 'Content-Type':'text/plain', 'Client-Id': TWITCH_PUBLIC_CLIENT_ID },
-        body: JSON.stringify([{
-          operationName:'StreamMetadata',
-          variables:{ channelLogin: channel.toLowerCase() },
-          extensions:{ persistedQuery:{ version:1, sha256Hash:'1c719a40e481453e5c48d9bb585d971b8b372f8ebb105b17076722264dfa5b3' } }
-        }])
+        body: JSON.stringify({
+          query: TWITCH_VIEWER_QUERY,
+          variables:{ login: channel.toLowerCase() }
+        })
       });
       if(!res.ok) throw new Error('bad status');
       const json = await res.json();
-      const stream = json && json[0] && json[0].data && json[0].data.user && json[0].data.user.stream;
-      viewerCounts.twitch = (stream && typeof stream.viewersCount === 'number') ? stream.viewersCount : null;
+      if(json && json.errors && json.errors.length){ throw new Error('gql error'); }
+      const user = json && json.data && json.data.user;
+      if(!user){ viewerCounts.twitch = null; viewerStatus.twitch = 'not_found'; renderViewerCounts(); return; }
+      const stream = user.stream;
+      if(stream && typeof stream.viewersCount === 'number'){
+        viewerCounts.twitch = stream.viewersCount;
+        viewerStatus.twitch = 'live';
+      } else {
+        viewerCounts.twitch = null;
+        viewerStatus.twitch = 'offline';
+      }
     } catch(err){
       viewerCounts.twitch = null;
+      viewerStatus.twitch = 'error';
     }
     renderViewerCounts();
   }
@@ -1151,47 +1190,6 @@
     onDrag(t.clientX, t.clientY);
   }, {passive:true});
   window.addEventListener('touchend', stopDrag);
-
-  // Demo notifications
-  const demoSwitch = document.getElementById('demoSwitch');
-  const demoSw = document.getElementById('demoSw');
-  const railFeed = document.getElementById('railFeed');
-  const railEmpty = document.getElementById('railEmpty');
-  let demoOn = false, demoTimer = null;
-
-  const demoEvents = [
-    {plat:'kick', klass:'kick', user:'nightowl22', desc:'sent 250 Kick Points'},
-    {plat:'twitch', klass:'twitch', user:'pixelmage', desc:'gifted a Tier 1 sub'},
-    {plat:'kick', klass:'kick', user:'ghost_ray', desc:'sent 1,000 Kick Points'},
-    {plat:'twitch', klass:'twitch', user:'lunarwave', desc:'cheered 500 bits'},
-    {plat:'twitch', klass:'twitch', user:'staticfox', desc:'gifted 5 subs to the community'},
-    {plat:'kick', klass:'kick', user:'brambleco', desc:'became a new subscriber'},
-  ];
-
-  function addFeedItem(ev){
-    railEmpty.style.display = 'none';
-    const el = document.createElement('div');
-    el.className = 'feed-item ' + ev.klass;
-    const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-    el.innerHTML = '<div class="top"><span class="plat">' + ev.plat.toUpperCase() + '</span><span class="user">' + ev.user + '</span><span class="time">' + time + '</span></div><div class="desc">' + ev.desc + ' <i style="color:var(--muted-2)">· demo</i></div>';
-    railFeed.prepend(el);
-    while(railFeed.children.length > 30){ railFeed.removeChild(railFeed.lastChild); }
-  }
-
-  demoSwitch.addEventListener('click', ()=>{
-    demoOn = !demoOn;
-    demoSw.classList.toggle('on', demoOn);
-    if(demoOn){
-      showToast('Demo mode: simulated alerts only');
-      addFeedItem(demoEvents[Math.floor(Math.random()*demoEvents.length)]);
-      demoTimer = setInterval(()=>{
-        addFeedItem(demoEvents[Math.floor(Math.random()*demoEvents.length)]);
-      }, 4000 + Math.random()*3000);
-      toggleRail(true);
-    } else {
-      clearInterval(demoTimer);
-    }
-  });
 
   // mobile stacking helper class
   function applyMobileClass(){
