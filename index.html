@@ -370,6 +370,10 @@
   .chat-row.kick .uname{color:var(--kick);}
   .chat-row.twitch .uname{color:#C9A5FF;}
   .chat-row .mtext{color:var(--text); min-width:0;}
+  img.chat-emote{
+    display:inline-block; height:22px; width:auto; vertical-align:middle;
+    margin:-2px 1px; border-radius:3px; object-fit:contain;
+  }
   .merged-empty{
     flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
     color:var(--muted-2); text-align:center; padding:24px;
@@ -906,6 +910,43 @@
     return d.innerHTML;
   }
 
+  // Kick embeds emotes right in the message text as [emote:12345:Name] — swap for the real image.
+  function kickTextToHtml(rawText){
+    const escaped = escapeHtml(rawText);
+    return escaped.replace(/\[emote:(\d+):([^\]]+)\]/g, function(m, id, name){
+      return '<img class="chat-emote" src="https://files.kick.com/emotes/' + id + '/fullsize" alt="' + name + '" title="' + name + '" onerror="this.outerHTML=this.alt">';
+    });
+  }
+
+  // Twitch sends emote positions separately via the IRC "emotes" tag: "id:start-end,start-end/id2:start-end"
+  function twitchTextToHtml(rawText, emotesTag){
+    if(!emotesTag){ return escapeHtml(rawText); }
+    const ranges = [];
+    emotesTag.split('/').forEach(function(part){
+      if(!part) return;
+      const bits = part.split(':');
+      const id = bits[0], positions = bits[1];
+      if(!positions) return;
+      positions.split(',').forEach(function(pos){
+        const se = pos.split('-');
+        const start = parseInt(se[0], 10), end = parseInt(se[1], 10);
+        if(!isNaN(start) && !isNaN(end)) ranges.push({id:id, start:start, end:end});
+      });
+    });
+    if(!ranges.length){ return escapeHtml(rawText); }
+    ranges.sort(function(a,b){ return a.start - b.start; });
+    const chars = Array.from(rawText); // handles multi-byte chars safely
+    let html = '', cursor = 0;
+    ranges.forEach(function(r){
+      if(r.start > cursor){ html += escapeHtml(chars.slice(cursor, r.start).join('')); }
+      const word = chars.slice(r.start, r.end + 1).join('');
+      html += '<img class="chat-emote" src="https://static-cdn.jtvnw.net/emoticons/v2/' + r.id + '/default/dark/2.0" alt="' + escapeHtml(word) + '" title="' + escapeHtml(word) + '" onerror="this.outerHTML=this.alt">';
+      cursor = r.end + 1;
+    });
+    if(cursor < chars.length){ html += escapeHtml(chars.slice(cursor).join('')); }
+    return html;
+  }
+
   function renderMessage(msg){
     if(mergedEmpty.parentNode){ mergedEmpty.remove(); }
     const wasNearBottom = isNearBottom();
@@ -913,9 +954,10 @@
     row.className = 'chat-row ' + msg.platform;
     const icon = msg.platform === 'kick' ? 'K' : 'T';
     const nameColor = msg.color ? ' style="color:' + msg.color + '"' : '';
+    const bodyHtml = msg.platform === 'kick' ? kickTextToHtml(msg.text) : twitchTextToHtml(msg.text, msg.emotesTag);
     row.innerHTML = '<span class="plat-icon">' + icon + '</span>' +
       '<span class="uname"' + nameColor + '>' + escapeHtml(msg.user) + '</span>' +
-      '<span class="mtext">' + escapeHtml(msg.text) + '</span>';
+      '<span class="mtext">' + bodyHtml + '</span>';
     mergedList.appendChild(row);
     messages.push(msg);
     while(messages.length > MAX_MESSAGES){
@@ -981,7 +1023,8 @@
             platform:'twitch',
             user: tags['display-name'] || m[2],
             color: tags['color'] || null,
-            text: m[3]
+            text: m[3],
+            emotesTag: tags['emotes'] || null
           });
         }
       });
