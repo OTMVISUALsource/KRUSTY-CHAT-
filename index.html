@@ -179,6 +179,98 @@
   }
   .combine-btn.active{color:#000; background:linear-gradient(90deg, var(--kick), var(--twitch)); border-color:transparent;}
 
+  /* ---------- STATS BUTTONS + MODAL ---------- */
+  .stats-btn{
+    display:flex; align-items:center; gap:5px; height:30px; padding:0 12px; border-radius:20px;
+    border:1px solid var(--border); background:var(--surface-2); color:var(--muted); cursor:pointer;
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:11.5px; transition:.15s;
+  }
+  .stats-btn.kick{border-color:rgba(83,252,24,0.3); color:var(--kick);}
+  .stats-btn.twitch{border-color:rgba(145,70,255,0.35); color:var(--twitch);}
+  .stats-btn:hover{filter:brightness(1.2);}
+
+  .stats-modal-backdrop{
+    position:fixed; inset:0; z-index:300; background:rgba(0,0,0,0.6); backdrop-filter:blur(3px);
+    display:flex; align-items:flex-end; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  .stats-modal-backdrop.show{opacity:1; pointer-events:auto;}
+  @media (min-width:761px){ .stats-modal-backdrop{align-items:center;} }
+  .stats-modal{
+    width:100%; max-width:480px; max-height:min(88vh, 720px); background:var(--surface);
+    border:1px solid var(--border); border-radius:18px 18px 0 0; display:flex; flex-direction:column;
+    overflow:hidden; transform:translateY(16px); transition:transform .25s cubic-bezier(.2,.8,.2,1);
+    padding-bottom:env(safe-area-inset-bottom, 0px);
+  }
+  @media (min-width:761px){ .stats-modal{border-radius:18px; margin:0 16px;} }
+  .stats-modal-backdrop.show .stats-modal{transform:translateY(0);}
+  .stats-modal.kick{border-top:2px solid var(--kick);}
+  .stats-modal.twitch{border-top:2px solid var(--twitch);}
+  .stats-modal-head{
+    display:flex; align-items:center; justify-content:space-between; padding:14px 16px;
+    border-bottom:1px solid var(--border-soft); flex-shrink:0;
+  }
+  .stats-modal-title{display:flex; align-items:center; gap:8px; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14px;}
+  .stats-modal-badge{font-size:10px; font-weight:700; padding:2px 7px; border-radius:5px; letter-spacing:0.03em;}
+  .stats-modal-badge.kick{background:var(--kick); color:#000;}
+  .stats-modal-badge.twitch{background:var(--twitch); color:#fff;}
+  .stats-modal-close{width:30px; height:30px; border-radius:8px; border:1px solid var(--border); background:var(--surface-2); color:var(--muted); cursor:pointer;}
+  .stats-tabs{
+    display:flex; gap:2px; padding:8px 12px 0; border-bottom:1px solid var(--border-soft); flex-shrink:0;
+    overflow-x:auto;
+  }
+  .stats-tab-btn{
+    border:none; background:none; color:var(--muted); font-family:'Space Grotesk',sans-serif; font-weight:600;
+    font-size:12px; padding:8px 10px; cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; flex-shrink:0;
+  }
+  .stats-tab-btn.active{color:var(--text); border-bottom-color:var(--twitch);}
+  .stats-modal.kick .stats-tab-btn.active{border-bottom-color:var(--kick);}
+  .stats-body{flex:1; overflow-y:auto; padding:14px 16px;}
+  .stats-modal-foot{padding:10px 16px; border-top:1px solid var(--border-soft); flex-shrink:0;}
+  .stats-modal-foot a{color:var(--muted); font-size:11.5px; text-decoration:none; font-family:'JetBrains Mono',monospace;}
+  .stats-modal-foot a:hover{color:var(--text);}
+
+  .stats-overview-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;}
+  .stats-card{background:var(--surface-2); border:1px solid var(--border-soft); border-radius:10px; padding:12px;}
+  .stats-card-label{font-size:10.5px; color:var(--muted-2); font-family:'JetBrains Mono',monospace; margin-bottom:4px;}
+  .stats-card-value{font-size:20px; font-weight:700; font-family:'Space Grotesk',sans-serif; color:var(--text);}
+  .stats-card-value.is-live{color:var(--live);}
+  .stats-note{font-size:11.5px; color:var(--muted); line-height:1.5; margin:0;}
+
+  .stats-window-tabs{display:flex; gap:6px; margin-bottom:12px;}
+  .stats-window-btn{
+    flex:1; border:1px solid var(--border); background:var(--surface-2); color:var(--muted);
+    border-radius:8px; padding:6px 0; font-size:11.5px; font-weight:600; font-family:'Space Grotesk',sans-serif; cursor:pointer;
+  }
+  .stats-window-btn.active{color:#000; background:linear-gradient(90deg, var(--kick), var(--twitch)); border-color:transparent;}
+
+  .gifter-spotlight{
+    display:flex; align-items:center; gap:10px; background:var(--surface-2); border:1px solid var(--border-soft);
+    border-radius:12px; padding:12px 14px; margin-bottom:12px; min-height:52px;
+    opacity:0; transform:translateY(4px); transition:opacity .3s ease, transform .3s ease;
+  }
+  .gifter-spotlight.show{opacity:1; transform:translateY(0);}
+  .spotlight-rank{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; color:var(--muted-2); flex-shrink:0;}
+  .spotlight-name{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14px; color:var(--text); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .spotlight-count{font-size:11.5px; color:var(--muted); font-family:'JetBrains Mono',monospace; flex-shrink:0;}
+
+  .stats-list{display:flex; flex-direction:column; gap:6px;}
+  .stats-row{
+    display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px;
+    background:var(--surface-2); border:1px solid var(--border-soft); font-size:12.5px;
+  }
+  .stats-rank{font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--muted-2); font-size:11.5px; flex-shrink:0; width:22px;}
+  .stats-row-name{font-weight:700; color:var(--text); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .stats-row-value{color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:11.5px; flex-shrink:0;}
+  .stats-row-sub{color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:11px; margin-left:auto; flex-shrink:0;}
+  .stats-empty{padding:22px 10px; text-align:center; color:var(--muted-2); font-size:12px; line-height:1.6;}
+
+  .stats-dow{display:flex; align-items:flex-end; justify-content:space-between; gap:6px; height:70px; margin:4px 0 16px; padding:0 4px;}
+  .dow-col{display:flex; flex-direction:column; align-items:center; gap:6px; flex:1;}
+  .dow-bar{width:100%; max-width:20px; border-radius:4px 4px 0 0; background:linear-gradient(180deg, var(--kick), var(--twitch));}
+  .dow-label{font-size:9.5px; color:var(--muted-2); font-family:'JetBrains Mono',monospace;}
+
+
   /* ---------- CHROME HIDE / SHOW ---------- */
   body.chrome-hidden .setup-bar{display:none;}
   .chrome-toggle-btn.active{color:var(--text); border-color:var(--kick); box-shadow:0 0 0 1px var(--kick) inset;}
@@ -667,6 +759,36 @@
     <span class="vlabel">viewers</span>
   </div>
   <button class="combine-btn" id="combineBtn" title="Merge Kick + Twitch viewer counts into one total">⇄ Combine</button>
+  <button class="stats-btn kick" id="kickStatsBtn">
+    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
+    Kick Stats
+  </button>
+  <button class="stats-btn twitch" id="twitchStatsBtn">
+    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
+    Twitch Stats
+  </button>
+</div>
+
+<div class="stats-modal-backdrop" id="statsModalBackdrop">
+  <div class="stats-modal" id="statsModal">
+    <div class="stats-modal-head">
+      <div class="stats-modal-title">
+        <span class="stats-modal-badge" id="statsModalBadge">KICK</span>
+        <span id="statsModalChannel">—</span>
+      </div>
+      <button class="stats-modal-close" id="statsModalClose">✕</button>
+    </div>
+    <div class="stats-tabs" id="statsTabs">
+      <button class="stats-tab-btn active" data-stab="overview">Overview</button>
+      <button class="stats-tab-btn" data-stab="gifters">Top Gifters</button>
+      <button class="stats-tab-btn" data-stab="chatters">Top Chatters</button>
+      <button class="stats-tab-btn" data-stab="schedule">Schedule &amp; Streams</button>
+    </div>
+    <div class="stats-body" id="statsBody"></div>
+    <div class="stats-modal-foot">
+      <a id="statsExternalLink" href="#" target="_blank" rel="noopener">Open full analytics on StreamerStats ↗</a>
+    </div>
+  </div>
 </div>
 
 <div class="live-banner hidden" id="liveBanner">
@@ -1200,29 +1322,34 @@
     showToast(combineOn ? 'Showing combined viewer count' : 'Showing individual viewer counts');
   });
 
-  // Kick exposes live viewer_count on the same public channel endpoint used for the live check.
+  // Kick exposes live viewer_count AND a real followers_count on the same public channel endpoint
+  // already used for the live check — no extra request needed for the follower counter.
   async function fetchKickViewers(channel){
     if(!channel){ viewerCounts.kick = null; viewerStatus.kick = 'idle'; renderViewerCounts(); return; }
     try{
       const res = await fetch('https://kick.com/api/v2/channels/' + channel);
       if(!res.ok) throw new Error('bad status');
       const data = await res.json();
-      if(data && data.livestream && typeof data.livestream.viewer_count === 'number'){
+      if(typeof data.followers_count === 'number'){ statsState.kick.followers = data.followers_count; }
+      const isLive = !!(data && data.livestream && typeof data.livestream.viewer_count === 'number');
+      if(isLive){
         viewerCounts.kick = data.livestream.viewer_count;
         viewerStatus.kick = 'live';
       } else {
         viewerCounts.kick = null;
         viewerStatus.kick = 'offline';
       }
+      handleSessionTracking('kick', isLive, viewerCounts.kick);
     } catch(err){
       viewerCounts.kick = null;
       viewerStatus.kick = 'error';
     }
     renderViewerCounts();
+    renderStatsPanelIfOpen('kick');
   }
 
-  // Twitch has no key-free official endpoint for viewer counts. This calls Twitch's own public web
-  // GraphQL gateway with the open-source "web client" ID that ships in Twitch's own front-end JS —
+  // Twitch has no key-free official endpoint for viewer/follower counts. This calls Twitch's own public
+  // web GraphQL gateway with the open-source "web client" ID that ships in Twitch's own front-end JS —
   // the same anonymous, read-only technique open-source tools like Chatterino/Streamlink use to read
   // public stream info without an OAuth app. A raw HTML fetch of twitch.tv can't be used instead: Twitch
   // doesn't send CORS headers on the page itself, so the browser blocks that request outright before any
@@ -1230,7 +1357,7 @@
   // We send the query text directly rather than as a "persisted query" hash, since those hashes are
   // internal implementation details Twitch rotates over time and a stale one fails silently.
   const TWITCH_PUBLIC_CLIENT_ID = 'kimne78kx3ncx6brgo4mv6wki5h1ko';
-  const TWITCH_VIEWER_QUERY = 'query($login:String!){user(login:$login){stream{viewersCount}}}';
+  const TWITCH_VIEWER_QUERY = 'query($login:String!){user(login:$login){followers{totalCount} stream{viewersCount}}}';
   async function fetchTwitchViewers(channel){
     if(!channel){ viewerCounts.twitch = null; viewerStatus.twitch = 'idle'; renderViewerCounts(); return; }
     try{
@@ -1247,19 +1374,23 @@
       if(json && json.errors && json.errors.length){ throw new Error('gql error'); }
       const user = json && json.data && json.data.user;
       if(!user){ viewerCounts.twitch = null; viewerStatus.twitch = 'not_found'; renderViewerCounts(); return; }
+      if(user.followers && typeof user.followers.totalCount === 'number'){ statsState.twitch.followers = user.followers.totalCount; }
       const stream = user.stream;
-      if(stream && typeof stream.viewersCount === 'number'){
+      const isLive = !!(stream && typeof stream.viewersCount === 'number');
+      if(isLive){
         viewerCounts.twitch = stream.viewersCount;
         viewerStatus.twitch = 'live';
       } else {
         viewerCounts.twitch = null;
         viewerStatus.twitch = 'offline';
       }
+      handleSessionTracking('twitch', isLive, viewerCounts.twitch);
     } catch(err){
       viewerCounts.twitch = null;
       viewerStatus.twitch = 'error';
     }
     renderViewerCounts();
+    renderStatsPanelIfOpen('twitch');
   }
 
   function refreshViewerCounts(){
@@ -1267,6 +1398,282 @@
     fetchTwitchViewers(state.twitch);
   }
   setInterval(refreshViewerCounts, 60000);
+
+  // ---------- LOCAL STATS TRACKING (persisted via window.storage) ----------
+  // Real Kick/Twitch stats built from what Krusty Chat itself observes live off the open chat
+  // connections — gifters, chatters, and stream sessions. This is deliberately NOT pulled from
+  // streamerstats.com / streamscharts.com: those are separate products with no public API, so a
+  // browser-side fetch to their domain would be blocked by CORS before any data came back. Instead
+  // this keeps its own local history (per-browser, personal storage) that starts empty and grows
+  // every time this app is open during a stream — it can't backfill anything from before today.
+  const STORAGE_OK = !!(window.storage && window.storage.get && window.storage.set);
+  const statsState = {
+    kick: { followers: null, peakViewers: 0, gifters: [], chattersIndex: [], sessions: [], liveSince: null },
+    twitch: { followers: null, peakViewers: 0, gifters: [], chattersIndex: [], sessions: [], liveSince: null }
+  };
+  const statsLoaded = { kick:false, twitch:false };
+  const chatTallyBuffer = { kick:{}, twitch:{} };
+
+  async function storageGetJSON(key, fallback){
+    if(!STORAGE_OK) return fallback;
+    try{ const res = await window.storage.get(key, false); return (res && res.value) ? JSON.parse(res.value) : fallback; }
+    catch(err){ return fallback; }
+  }
+  async function storageSetJSON(key, value){
+    if(!STORAGE_OK) return;
+    try{ await window.storage.set(key, JSON.stringify(value), false); } catch(err){}
+  }
+
+  async function loadPlatformStats(platform){
+    if(statsLoaded[platform]) return;
+    statsLoaded[platform] = true;
+    statsState[platform].gifters = await storageGetJSON('stats:' + platform + ':gifters', []);
+    statsState[platform].sessions = await storageGetJSON('stats:' + platform + ':sessions', []);
+    statsState[platform].chattersIndex = await storageGetJSON('stats:' + platform + ':chatdays', []);
+    renderStatsPanelIfOpen(platform);
+  }
+
+  function recordGift(platform, user, kind, qty){
+    loadPlatformStats(platform).then(()=>{
+      const log = statsState[platform].gifters;
+      log.push({ user, kind, qty: qty || 1, ts: Date.now() });
+      if(log.length > 500){ log.splice(0, log.length - 500); }
+      storageSetJSON('stats:' + platform + ':gifters', log);
+      renderStatsPanelIfOpen(platform);
+    });
+  }
+
+  function todayKey(){
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+
+  function recordChatMessage(platform, user){
+    if(!user) return;
+    chatTallyBuffer[platform][user] = (chatTallyBuffer[platform][user] || 0) + 1;
+  }
+
+  async function flushChatTally(){
+    for(const platform of ['kick','twitch']){
+      const buf = chatTallyBuffer[platform];
+      const keys = Object.keys(buf);
+      if(!keys.length) continue;
+      chatTallyBuffer[platform] = {};
+      await loadPlatformStats(platform);
+      const day = todayKey();
+      const dayKey = 'stats:' + platform + ':chatday:' + day;
+      const existing = await storageGetJSON(dayKey, {});
+      keys.forEach(u=>{ existing[u] = (existing[u] || 0) + buf[u]; });
+      await storageSetJSON(dayKey, existing);
+      if(statsState[platform].chattersIndex.indexOf(day) === -1){
+        statsState[platform].chattersIndex.push(day);
+        if(statsState[platform].chattersIndex.length > 120){ statsState[platform].chattersIndex.shift(); }
+        await storageSetJSON('stats:' + platform + ':chatdays', statsState[platform].chattersIndex);
+      }
+      renderStatsPanelIfOpen(platform);
+    }
+  }
+  setInterval(flushChatTally, 25000);
+
+  function handleSessionTracking(platform, isLive, viewers){
+    const st = statsState[platform];
+    if(isLive){
+      if(typeof viewers === 'number'){ st.peakViewers = Math.max(st.peakViewers || 0, viewers); }
+      if(!st.liveSince){
+        st.liveSince = Date.now();
+        loadPlatformStats(platform).then(()=>{
+          st.sessions.push({ start: st.liveSince, end: null, peak: st.peakViewers || 0 });
+          if(st.sessions.length > 120){ st.sessions.shift(); }
+          storageSetJSON('stats:' + platform + ':sessions', st.sessions);
+        });
+      } else {
+        const open = st.sessions[st.sessions.length - 1];
+        if(open && !open.end){ open.peak = Math.max(open.peak || 0, st.peakViewers || 0); }
+      }
+    } else if(st.liveSince){
+      const open = st.sessions[st.sessions.length - 1];
+      if(open && !open.end){ open.end = Date.now(); storageSetJSON('stats:' + platform + ':sessions', st.sessions); }
+      st.liveSince = null;
+      st.peakViewers = 0;
+    }
+  }
+
+  // ---------- STATS MODAL ----------
+  let statsModalOpen = false;
+  let statsModalPlatform = 'kick';
+  let statsActiveTab = 'overview';
+  let statsActiveWindow = 7;
+  let spotlightTimer = null, spotlightIndex = 0;
+
+  function computeWindowStart(days){ return days === 'all' ? 0 : Date.now() - days*24*60*60*1000; }
+
+  function aggregateGifters(platform, days){
+    const start = computeWindowStart(days);
+    const log = statsState[platform].gifters.filter(g=> g.ts >= start);
+    const totals = {};
+    log.forEach(g=>{
+      if(!totals[g.user]){ totals[g.user] = { user:g.user, count:0 }; }
+      totals[g.user].count += (g.qty || 1);
+    });
+    return Object.values(totals).sort((a,b)=> b.count - a.count);
+  }
+
+  async function aggregateChatters(platform, days){
+    const idx = statsState[platform].chattersIndex;
+    const start = computeWindowStart(days) - 24*60*60*1000;
+    const relevantDays = idx.filter(d=> days === 'all' || new Date(d + 'T00:00:00').getTime() >= start);
+    const totals = {};
+    for(const day of relevantDays){
+      const bucket = await storageGetJSON('stats:' + platform + ':chatday:' + day, {});
+      Object.keys(bucket).forEach(u=>{ totals[u] = (totals[u] || 0) + bucket[u]; });
+    }
+    return Object.entries(totals).map(([user,count])=>({user,count})).sort((a,b)=> b.count - a.count);
+  }
+
+  function fmtDuration(ms){
+    const mins = Math.round(ms/60000);
+    const h = Math.floor(mins/60), m = mins%60;
+    return h > 0 ? h + 'h ' + m + 'm' : m + 'm';
+  }
+  function emptyStateHtml(msg){ return '<div class="stats-empty">' + escapeHtml(msg) + '</div>'; }
+  function renderWindowTabs(){
+    return '<div class="stats-window-tabs">' +
+      [7,30,90,'all'].map(w=> '<button class="stats-window-btn' + (statsActiveWindow===w?' active':'') + '" data-window="' + w + '">' + (w==='all'?'All-time':w+'d') + '</button>').join('') +
+    '</div>';
+  }
+  function renderGifterRow(g,i){
+    return '<div class="stats-row"><span class="stats-rank">#' + (i+1) + '</span><span class="stats-row-name">' + escapeHtml(g.user) + '</span><span class="stats-row-value">' + g.count + ' gifted</span></div>';
+  }
+  function renderChatterRow(c,i){
+    return '<div class="stats-row"><span class="stats-rank">#' + (i+1) + '</span><span class="stats-row-name">' + escapeHtml(c.user) + '</span><span class="stats-row-value">' + c.count + ' msgs</span></div>';
+  }
+  function renderSessionRow(s){
+    const start = new Date(s.start);
+    const dur = s.end ? fmtDuration(s.end - s.start) : 'ongoing';
+    return '<div class="stats-row"><span class="stats-row-name">' + start.toLocaleDateString([], {month:'short',day:'numeric'}) + '</span><span class="stats-row-sub">' + dur + (s.peak ? ' · peak ' + fmtCount(s.peak) : '') + '</span></div>';
+  }
+
+  function stopGifterSpotlight(){ if(spotlightTimer){ clearInterval(spotlightTimer); spotlightTimer = null; } }
+  function renderSpotlightFrame(list){
+    const el = document.getElementById('gifterSpotlight');
+    if(!el) return;
+    el.classList.remove('show');
+    requestAnimationFrame(()=>{
+      const item = list[spotlightIndex];
+      el.innerHTML = '<span class="spotlight-rank">#' + (spotlightIndex+1) + '</span><span class="spotlight-name">' + escapeHtml(item.user) + '</span><span class="spotlight-count">' + item.count + ' gifted</span>';
+      requestAnimationFrame(()=> el.classList.add('show'));
+    });
+  }
+  function startGifterSpotlight(list){
+    stopGifterSpotlight();
+    if(!list.length) return;
+    spotlightIndex = 0;
+    renderSpotlightFrame(list);
+    spotlightTimer = setInterval(()=>{
+      spotlightIndex = (spotlightIndex + 1) % list.length;
+      renderSpotlightFrame(list);
+    }, 2600);
+  }
+
+  function renderScheduleTab(platform){
+    const sessions = statsState[platform].sessions.slice().reverse();
+    const closed = sessions.filter(s=> s.end);
+    const avgMs = closed.length ? closed.reduce((a,s)=> a + (s.end-s.start), 0) / closed.length : 0;
+    const dow = [0,0,0,0,0,0,0];
+    sessions.forEach(s=>{ dow[new Date(s.start).getDay()]++; });
+    const dowLabels = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const maxDow = Math.max(1, Math.max.apply(null, dow));
+    return '<div class="stats-overview-grid">' +
+        '<div class="stats-card"><div class="stats-card-label">Sessions logged</div><div class="stats-card-value">' + sessions.length + '</div></div>' +
+        '<div class="stats-card"><div class="stats-card-label">Avg length</div><div class="stats-card-value">' + (avgMs ? fmtDuration(avgMs) : '–') + '</div></div>' +
+      '</div>' +
+      '<div class="stats-dow">' + dowLabels.map((d,i)=> '<div class="dow-col"><div class="dow-bar" style="height:' + Math.max(4, (dow[i]/maxDow)*48) + 'px"></div><div class="dow-label">' + d + '</div></div>').join('') + '</div>' +
+      '<div class="stats-list">' + (sessions.length ? sessions.slice(0,20).map(renderSessionRow).join('') : emptyStateHtml('No stream sessions logged yet — Krusty Chat records one automatically each time it detects this channel go live while the app is open.')) + '</div>';
+  }
+
+  function renderStatsBody(){
+    const platform = statsModalPlatform;
+    const st = statsState[platform];
+    const body = document.getElementById('statsBody');
+    if(!body) return;
+    document.querySelectorAll('.stats-tab-btn').forEach(b=> b.classList.toggle('active', b.getAttribute('data-stab') === statsActiveTab));
+    stopGifterSpotlight();
+
+    if(statsActiveTab === 'overview'){
+      const viewers = viewerCounts[platform];
+      const live = viewerStatus[platform] === 'live';
+      body.innerHTML =
+        '<div class="stats-overview-grid">' +
+          '<div class="stats-card"><div class="stats-card-label">Followers</div><div class="stats-card-value">' + (st.followers !== null ? fmtCount(st.followers) : '–') + '</div></div>' +
+          '<div class="stats-card"><div class="stats-card-label">Viewers now</div><div class="stats-card-value">' + (live ? fmtCount(viewers) : '–') + '</div></div>' +
+          '<div class="stats-card"><div class="stats-card-label">Peak this session</div><div class="stats-card-value">' + (st.peakViewers ? fmtCount(st.peakViewers) : '–') + '</div></div>' +
+          '<div class="stats-card"><div class="stats-card-label">Status</div><div class="stats-card-value' + (live?' is-live':'') + '">' + (live ? 'LIVE' : 'Offline') + '</div></div>' +
+        '</div>' +
+        '<p class="stats-note">Followers &amp; viewers are pulled live, right now, straight from ' + (platform==='kick'?'Kick':'Twitch') + '. Gifters, chatters and stream history are captured locally by Krusty Chat and grow the more this app stays open during your streams.</p>';
+    } else if(statsActiveTab === 'gifters'){
+      const list = aggregateGifters(platform, statsActiveWindow);
+      body.innerHTML = renderWindowTabs() +
+        (list.length ? '<div class="gifter-spotlight" id="gifterSpotlight"></div>' : '') +
+        '<div class="stats-list">' + (list.length ? list.map(renderGifterRow).join('') : emptyStateHtml('No gifts captured yet in this window — they will appear here the moment they happen while Krusty Chat is open.')) + '</div>';
+      if(list.length){ startGifterSpotlight(list.slice(0,8)); }
+    } else if(statsActiveTab === 'chatters'){
+      body.innerHTML = renderWindowTabs() + '<div class="stats-list" id="statsListArea"><div class="stats-empty">Loading…</div></div>';
+      aggregateChatters(platform, statsActiveWindow).then(list=>{
+        const area = document.getElementById('statsListArea');
+        if(!area || statsActiveTab !== 'chatters') return;
+        area.innerHTML = list.length ? list.slice(0,50).map(renderChatterRow).join('') : emptyStateHtml('No chat activity captured yet in this window.');
+      });
+    } else if(statsActiveTab === 'schedule'){
+      body.innerHTML = renderScheduleTab(platform);
+    }
+  }
+
+  function renderStatsPanelIfOpen(platform){
+    if(statsModalOpen && statsModalPlatform === platform){ renderStatsBody(); }
+  }
+
+  function openStatsModal(platform){
+    statsModalPlatform = platform;
+    statsModalOpen = true;
+    statsActiveTab = 'overview';
+    statsActiveWindow = 7;
+    const backdrop = document.getElementById('statsModalBackdrop');
+    const badge = document.getElementById('statsModalBadge');
+    const modalEl = document.getElementById('statsModal');
+    const channel = platform === 'kick' ? state.kick : state.twitch;
+    backdrop.classList.add('show');
+    badge.textContent = platform.toUpperCase();
+    badge.className = 'stats-modal-badge ' + platform;
+    modalEl.className = 'stats-modal ' + platform;
+    document.getElementById('statsModalChannel').textContent = channel || 'no channel set';
+    document.getElementById('statsExternalLink').href = channel ? ('https://streamerstats.com/' + platform + '/channels/' + channel) : ('https://streamerstats.com/' + platform);
+    loadPlatformStats(platform);
+    renderStatsBody();
+  }
+  function closeStatsModal(){
+    statsModalOpen = false;
+    document.getElementById('statsModalBackdrop').classList.remove('show');
+    stopGifterSpotlight();
+  }
+
+  document.getElementById('kickStatsBtn').addEventListener('click', ()=> openStatsModal('kick'));
+  document.getElementById('twitchStatsBtn').addEventListener('click', ()=> openStatsModal('twitch'));
+  document.getElementById('statsModalClose').addEventListener('click', closeStatsModal);
+  document.getElementById('statsModalBackdrop').addEventListener('click', (e)=>{ if(e.target.id === 'statsModalBackdrop') closeStatsModal(); });
+  document.getElementById('statsTabs').addEventListener('click', (e)=>{
+    const btn = e.target.closest('.stats-tab-btn');
+    if(!btn) return;
+    statsActiveTab = btn.getAttribute('data-stab');
+    statsActiveWindow = 7;
+    renderStatsBody();
+  });
+  document.getElementById('statsBody').addEventListener('click', (e)=>{
+    const wbtn = e.target.closest('.stats-window-btn');
+    if(!wbtn) return;
+    const w = wbtn.getAttribute('data-window');
+    statsActiveWindow = w === 'all' ? 'all' : parseInt(w, 10);
+    renderStatsBody();
+  });
 
   // Draggable divider
   let dragging = false;
@@ -1399,6 +1806,7 @@
       '<span class="mtext">' + bodyHtml + '</span>';
     mergedList.appendChild(row);
     messages.push(msg);
+    if(typeof recordChatMessage === 'function'){ recordChatMessage(msg.platform, msg.user); }
     while(messages.length > MAX_MESSAGES){
       messages.shift();
       if(mergedList.firstElementChild){
@@ -1508,6 +1916,12 @@
     unseenGifts++;
     renderRecentGiftsButton();
     if(recentGiftsPanel.classList.contains('show')){ renderRecentGiftsList(); }
+
+    // 3) Feed the local Kick/Twitch Stats tracker (Top Gifters tab)
+    if(typeof recordGift === 'function'){
+      const qty = (recipients && recipients.length) ? recipients.length : 1;
+      recordGift(platform, user, kind, qty);
+    }
   }
 
   function retireAlertCard(card){
@@ -1596,18 +2010,20 @@
     let payload;
     try{ payload = typeof dataRaw === 'string' ? JSON.parse(dataRaw) : dataRaw; } catch(err){ return; }
     if(!payload) return;
-    if(eventName.indexOf('GiftedSubscriptionsEvent') !== -1){
-      const gifter = payload.gifter_username || (payload.gifter && payload.gifter.username) || 'someone';
-      const recipients = payload.gifted_usernames || payload.usernames || [];
-      const count = Array.isArray(recipients) ? recipients.length : (payload.quantity || payload.gift_count || 1);
+    const en = eventName.toLowerCase();
+    if(en.indexOf('giftedsubscription') !== -1 || en.indexOf('luckyuser') !== -1){
+      const gifter = payload.gifter_username || (payload.gifter && payload.gifter.username) ||
+        (payload.sender && payload.sender.username) || 'someone';
+      const recipients = payload.gifted_usernames || payload.usernames || payload.winners || payload.recipients || [];
+      const count = Array.isArray(recipients) && recipients.length ? recipients.length : (payload.quantity || payload.gift_count || payload.total || 1);
       addActivityItem('kick', count > 1 ? 'Gift Subs' : 'Gift Sub', gifter,
         'Gifted ' + count + ' sub' + (count === 1 ? '' : 's'),
-        Array.isArray(recipients) && recipients.length ? recipients : null);
-    } else if(eventName.indexOf('SubscriptionEvent') !== -1 && eventName.indexOf('Gifted') === -1){
-      const name = payload.username || (payload.user && payload.user.username) || 'someone';
+        Array.isArray(recipients) && recipients.length ? recipients.map(r=> typeof r === 'string' ? r : (r.username || r.name)).filter(Boolean) : null);
+    } else if(en.indexOf('subscription') !== -1 && en.indexOf('gift') === -1){
+      const name = payload.username || (payload.user && payload.user.username) || (payload.subscriber && payload.subscriber.username) || 'someone';
       const months = payload.months || payload.duration;
       addActivityItem('kick', 'New Sub', name, months ? 'Subscribed — ' + months + ' months' : 'Subscribed');
-    } else if(/gift/i.test(eventName)){
+    } else if(en.indexOf('gift') !== -1){
       // Catch-all for Kick's "Kicks" gift currency — event name/shape isn't publicly documented,
       // so this reads several plausible field names and skips quietly if none match.
       const sender = (payload.sender && payload.sender.username) || payload.gifter_username ||
@@ -1616,6 +2032,40 @@
       const qty = payload.quantity || payload.amount || (payload.gift && payload.gift.amount) || 1;
       const recipient = (payload.recipient && payload.recipient.username) || payload.recipient_username || null;
       addActivityItem('kick', 'Kick Gift', sender, 'Sent ' + qty + 'x ' + giftName, recipient ? [recipient] : null);
+    }
+  }
+
+  // Fallback: on some Kick builds, gift/sub announcements ride along inside the regular chat message
+  // payload (a special "type" or a "metadata" block) rather than a dedicated Pusher event. This checks
+  // for those shapes so gifts still surface even if Kick isn't sending a separate event for them.
+  const seenKickGiftIds = new Set();
+  function handleKickChatMessageForGifts(payload){
+    if(!payload || typeof payload !== 'object') return;
+    const type = (payload.type || '').toLowerCase();
+    const meta = payload.metadata || {};
+    const isGiftish = type.indexOf('gift') !== -1 || type.indexOf('sub') !== -1 ||
+      meta.gift || meta.gifted_subscriptions || payload.gift || payload.gifted_subscriptions;
+    if(!isGiftish) return;
+    // De-dupe in case the same event also arrives via the dedicated channel-level socket.
+    const dedupeKey = payload.id || payload.message_id || (payload.created_at || '') + type;
+    if(dedupeKey){
+      if(seenKickGiftIds.has(dedupeKey)) return;
+      seenKickGiftIds.add(dedupeKey);
+      if(seenKickGiftIds.size > 200){ seenKickGiftIds.clear(); }
+    }
+    const sender = (payload.sender && payload.sender.username) || 'someone';
+    const giftBlock = meta.gift || payload.gift;
+    const giftedSubs = meta.gifted_subscriptions || payload.gifted_subscriptions;
+    if(giftedSubs){
+      const recipients = Array.isArray(giftedSubs) ? giftedSubs.map(r=> typeof r === 'string' ? r : (r.username || r.name)).filter(Boolean) : null;
+      const count = recipients ? recipients.length : (giftedSubs.count || giftedSubs.quantity || 1);
+      addActivityItem('kick', count > 1 ? 'Gift Subs' : 'Gift Sub', sender, 'Gifted ' + count + ' sub' + (count === 1 ? '' : 's'), recipients);
+    } else if(giftBlock){
+      const giftName = giftBlock.name || giftBlock.gift_name || 'a gift';
+      const qty = giftBlock.amount || giftBlock.quantity || 1;
+      addActivityItem('kick', 'Kick Gift', sender, 'Sent ' + qty + 'x ' + giftName);
+    } else if(type.indexOf('sub') !== -1){
+      addActivityItem('kick', 'New Sub', sender, 'Subscribed');
     }
   }
 
@@ -1680,7 +2130,9 @@
       if(!res.ok) throw new Error('lookup failed');
       const data = await res.json();
       chatroomId = data && data.chatroom && data.chatroom.id;
-      channelId = data && data.id;
+      // Kick's API has changed the shape of this field before — try every plausible spot for the numeric channel id.
+      channelId = (data && data.id) || (data && data.chatroom && data.chatroom.channel_id) ||
+        (data && data.livestream && data.livestream.channel_id) || null;
       if(!chatroomId) throw new Error('no chatroom id');
     } catch(err){
       setChip(kickChip, kickChipText, 'Kick: unavailable in this browser', 'failed');
@@ -1694,6 +2146,7 @@
       return;
     }
     kickSocket = sock;
+    let chatroomSubOk = false, channelSubOk = false;
     sock.onopen = ()=>{
       sock.send(JSON.stringify({event:'pusher:subscribe', data:{channel:'chatrooms.' + chatroomId + '.v2'}}));
       // Sibling public channel that carries gift-sub / sub events — same socket, no extra auth.
@@ -1704,10 +2157,20 @@
     sock.onmessage = (e)=>{
       let outer;
       try{ outer = JSON.parse(e.data); } catch(err){ return; }
+
       if(outer.event === 'pusher_internal:subscription_succeeded' || outer.event === 'pusher:connection_established'){
+        if(outer.channel && outer.channel.indexOf('chatrooms.') === 0){ chatroomSubOk = true; }
+        if(outer.channel && outer.channel.indexOf('channel.') === 0){ channelSubOk = true; }
         setChip(kickChip, kickChipText, 'Kick: connected', 'connected');
         kickRetry = 0;
+        return;
       }
+      if(outer.event === 'pusher:subscription_error' || outer.event === 'pusher_internal:subscription_error'){
+        // The channel-level socket needs auth on Kick's end for some channels — chat still works either way.
+        console.debug('[Kick] subscription error on', outer.channel, outer.data);
+        return;
+      }
+
       if(outer.event === 'App\\Events\\ChatMessageEvent'){
         try{
           const payload = JSON.parse(outer.data);
@@ -1717,11 +2180,20 @@
             color: (payload.sender && payload.sender.identity && payload.sender.identity.color) || null,
             text: payload.content || ''
           });
+          // Some Kick builds announce subs/gifts as a specially-typed chat message rather than a
+          // separate Pusher event — catch that shape here too so nothing gets missed.
+          handleKickChatMessageForGifts(payload);
         } catch(err){}
         return;
       }
-      if(outer.event && outer.event.indexOf('App\\Events\\') === 0){
+
+      // Anything else under the App\Events\ namespace (any casing/sub-namespace) is worth inspecting —
+      // Kick doesn't publish a schema, so cast a wide net rather than matching one exact string.
+      if(outer.event && /events\\/i.test(outer.event)){
         handleKickChannelEvent(outer.event, outer.data);
+        if(!/GiftedSubscriptions|SubscriptionEvent|Gift/i.test(outer.event)){
+          console.debug('[Kick] unhandled event', outer.event, outer.data);
+        }
       }
     };
     sock.onclose = ()=>{
