@@ -235,6 +235,10 @@
   .stats-card-label{font-size:10.5px; color:var(--muted-2); font-family:'JetBrains Mono',monospace; margin-bottom:4px;}
   .stats-card-value{font-size:20px; font-weight:700; font-family:'Space Grotesk',sans-serif; color:var(--text);}
   .stats-card-value.is-live{color:var(--live);}
+  .follower-embed-card{grid-column:1 / -1; padding:10px;}
+  .follower-embed-card .stats-card-label{display:flex; align-items:center; justify-content:space-between;}
+  .lc-credit{font-size:9px; color:var(--muted-2); text-transform:none; letter-spacing:0;}
+  .lc-embed{width:100%; height:110px; border:none; border-radius:8px; background:#000; display:block;}
   .stats-note{font-size:11.5px; color:var(--muted); line-height:1.5; margin:0;}
 
   .stats-window-tabs{display:flex; gap:6px; margin-bottom:12px;}
@@ -1871,14 +1875,22 @@
     if(statsActiveTab === 'overview'){
       const viewers = viewerCounts[platform];
       const live = viewerStatus[platform] === 'live';
+      const channel = platform === 'kick' ? state.kick : state.twitch;
+      const followersCardHtml = (platform === 'kick' && channel)
+        ? '<div class="stats-card follower-embed-card"><div class="stats-card-label">Followers <span class="lc-credit">via livecounts.nl</span></div>' +
+            '<iframe class="lc-embed" src="https://livecounts.nl/kick-realtime/embed/?u=' + encodeURIComponent(channel) + '" loading="lazy" title="Live Kick follower count"></iframe>' +
+          '</div>'
+        : '<div class="stats-card"><div class="stats-card-label">Followers</div><div class="stats-card-value">' + (st.followers !== null ? fmtCount(st.followers) : '–') + '</div></div>';
       body.innerHTML =
         '<div class="stats-overview-grid">' +
-          '<div class="stats-card"><div class="stats-card-label">Followers</div><div class="stats-card-value">' + (st.followers !== null ? fmtCount(st.followers) : '–') + '</div></div>' +
+          followersCardHtml +
           '<div class="stats-card"><div class="stats-card-label">Viewers now</div><div class="stats-card-value">' + (live ? fmtCount(viewers) : '–') + '</div></div>' +
           '<div class="stats-card"><div class="stats-card-label">Peak this session</div><div class="stats-card-value">' + (st.peakViewers ? fmtCount(st.peakViewers) : '–') + '</div></div>' +
           '<div class="stats-card"><div class="stats-card-label">Status</div><div class="stats-card-value' + (live?' is-live':'') + '">' + (live ? 'LIVE' : 'Offline') + '</div></div>' +
         '</div>' +
-        '<p class="stats-note">Followers &amp; viewers are pulled live, right now, straight from ' + (platform==='kick'?'Kick':'Twitch') + '. Gifters, chatters and stream history are captured locally by Krusty Chat and grow the more this app stays open during your streams.</p>';
+        (platform === 'kick'
+          ? '<p class="stats-note">Kick followers come live from livecounts.nl\'s embeddable counter widget — steadier than Kick\'s own public endpoint, which doesn\'t always return that field. Viewers are still pulled straight from Kick.</p>'
+          : '<p class="stats-note">Followers &amp; viewers are pulled live, right now, straight from Twitch. Gifters, chatters and stream history are captured locally by Krusty Chat and grow the more this app stays open during your streams.</p>');
     } else if(statsActiveTab === 'gifters'){
       const list = aggregateGifters(platform, statsActiveWindow);
       body.innerHTML = renderWindowTabs() +
