@@ -346,6 +346,14 @@
   .admin-save-btn.kick{background:var(--kick);}
   .admin-save-btn.twitch{background:var(--twitch); color:#fff;}
   .admin-status{font-size:11px; color:var(--muted); min-height:14px;}
+  .admin-kick-log{
+    max-height:180px; overflow-y:auto; background:var(--surface-2); border:1px solid var(--border);
+    border-radius:8px; padding:8px; display:flex; flex-direction:column; gap:6px;
+  }
+  .admin-kick-log-empty{font-size:11px; color:var(--muted-2); padding:6px; text-align:center;}
+  .admin-kick-log-row{font-size:10.5px; font-family:'JetBrains Mono',monospace; color:var(--text); border-bottom:1px solid var(--border-soft); padding-bottom:6px; word-break:break-all;}
+  .admin-kick-log-row .klog-event{color:var(--kick); font-weight:700;}
+  .admin-kick-log-row .klog-data{color:var(--muted); display:block; margin-top:2px;}
 
 
   /* ---------- CHROME HIDE / SHOW ---------- */
@@ -889,6 +897,14 @@
       <textarea class="admin-json-area" id="adminTwitchJson" spellcheck="false"></textarea>
       <button class="admin-save-btn twitch" id="adminTwitchSave">Save Twitch gifters</button>
       <div class="admin-status" id="adminStatus"></div>
+      <div class="admin-divider"></div>
+      <div class="admin-json-label">Test the alert pipeline (fires a fake pop-up so you can confirm the UI itself works, separate from whether Kick actually sends a real event)</div>
+      <button class="admin-save-btn kick" id="adminTestKick">Send test Kick gift alert</button>
+      <button class="admin-save-btn twitch" id="adminTestTwitch">Send test Twitch gift alert</button>
+      <div class="admin-divider"></div>
+      <div class="admin-json-label">Live Kick socket log — every raw event Kick's chatroom actually sends while connected (so we can see the real event name/shape instead of guessing)</div>
+      <div class="admin-kick-log" id="adminKickLog"><div class="admin-kick-log-empty">Nothing yet — open this panel while Kick chat is connected and wait for activity.</div></div>
+      <button class="admin-save-btn kick" id="adminClearKickLog">Clear log</button>
     </div>
   </div>
 </div>
@@ -2040,6 +2056,36 @@
     } catch(err){ adminStatus.textContent = 'Invalid JSON — expected an array of {"user":"name","count":10}'; }
   });
 
+  document.getElementById('adminTestKick').addEventListener('click', ()=>{
+    addActivityItem('kick', 'Gift Subs', 'TestGifter' + Math.floor(Math.random()*90+10), 'Gifted 3 subs', ['viewerA','viewerB','viewerC']);
+    adminStatus.textContent = 'Test Kick alert sent — check the chat overlay';
+  });
+  document.getElementById('adminTestTwitch').addEventListener('click', ()=>{
+    addActivityItem('twitch', 'Cheer', 'TestCheerer' + Math.floor(Math.random()*90+10), 'Cheered 250 bits');
+    adminStatus.textContent = 'Test Twitch alert sent — check the chat overlay';
+  });
+
+  // Visible log of every raw Kick socket event — lets Krusty see the real event name/payload
+  // in-app, live, without needing browser dev tools.
+  const kickLogEl = document.getElementById('adminKickLog');
+  const MAX_KICK_LOG = 40;
+  function logKickEvent(eventName, dataRaw){
+    if(!kickLogEl) return;
+    const empty = kickLogEl.querySelector('.admin-kick-log-empty');
+    if(empty){ empty.remove(); }
+    const row = document.createElement('div');
+    row.className = 'admin-kick-log-row';
+    let dataStr = '';
+    try{ dataStr = typeof dataRaw === 'string' ? dataRaw : JSON.stringify(dataRaw); } catch(e){ dataStr = String(dataRaw); }
+    if(dataStr.length > 300){ dataStr = dataStr.slice(0,300) + '…'; }
+    row.innerHTML = '<span class="klog-event">' + escapeHtml(eventName) + '</span><span class="klog-data">' + escapeHtml(dataStr) + '</span>';
+    kickLogEl.prepend(row);
+    while(kickLogEl.children.length > MAX_KICK_LOG){ kickLogEl.removeChild(kickLogEl.lastElementChild); }
+  }
+  document.getElementById('adminClearKickLog').addEventListener('click', ()=>{
+    kickLogEl.innerHTML = '<div class="admin-kick-log-empty">Cleared. Waiting for the next event…</div>';
+  });
+
   // Draggable divider
   let dragging = false;
   function startDrag(e){
@@ -2563,6 +2609,7 @@
       // Anything else under the App\Events\ namespace (any casing/sub-namespace) is worth inspecting —
       // Kick doesn't publish a schema, so cast a wide net rather than matching one exact string.
       if(outer.event && /events\\/i.test(outer.event)){
+        if(typeof logKickEvent === 'function'){ logKickEvent(outer.event, outer.data); }
         handleKickChannelEvent(outer.event, outer.data);
         if(!/GiftedSubscriptions|SubscriptionEvent|Gift/i.test(outer.event)){
           console.debug('[Kick] unhandled event', outer.event, outer.data);
