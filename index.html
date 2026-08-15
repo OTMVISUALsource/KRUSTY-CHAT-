@@ -657,6 +657,23 @@
   .chat-row .uname{font-weight:700; flex-shrink:0; font-family:'Inter',sans-serif;}
   .chat-row.kick .uname{color:var(--kick);}
   .chat-row.twitch .uname{color:#C9A5FF;}
+
+  /* Developer's own name — holographic foil highlight so it always stands out */
+  .chat-row .uname.dev-name{
+    font-weight:800;
+    background:linear-gradient(100deg, #ff6ec7, #7dfcff, #a685ff, #ffe27a, #7dfcff, #ff6ec7);
+    background-size:300% 100%;
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent;
+    animation:holoShift 3.2s linear infinite;
+    filter:drop-shadow(0 0 6px rgba(255,110,199,0.35));
+    letter-spacing:0.01em;
+  }
+  @keyframes holoShift{ 0%{background-position:0% 50%;} 100%{background-position:300% 50%;} }
+  .dev-spark{
+    display:inline-block; margin-right:2px; -webkit-text-fill-color:initial; color:#ffe27a;
+    animation:sparkPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes sparkPulse{ 0%,100%{opacity:0.5; transform:scale(0.9);} 50%{opacity:1; transform:scale(1.15);} }
   .chat-row .mtext{color:var(--text); min-width:0;}
   img.chat-emote{
     display:inline-block; height:22px; width:auto; vertical-align:middle;
@@ -2141,16 +2158,24 @@
     return html;
   }
 
+  // App developer's own handles — always highlighted so they stand out from regular chat.
+  const DEV_HANDLES = { kick: 'otmv', twitch: 'outthemudvisual' };
+  function isDevHandle(platform, username){
+    return !!(username && DEV_HANDLES[platform] && username.trim().toLowerCase() === DEV_HANDLES[platform]);
+  }
+
   function renderMessage(msg){
     if(mergedEmpty.parentNode){ mergedEmpty.remove(); }
     const wasNearBottom = isNearBottom();
     const row = document.createElement('div');
     row.className = 'chat-row ' + msg.platform;
     const icon = msg.platform === 'kick' ? 'K' : 'T';
-    const nameColor = msg.color ? ' style="color:' + msg.color + '"' : '';
+    const isDev = isDevHandle(msg.platform, msg.user);
+    const nameColor = (!isDev && msg.color) ? ' style="color:' + msg.color + '"' : '';
+    const unameClass = 'uname' + (isDev ? ' dev-name' : '');
     const bodyHtml = msg.platform === 'kick' ? kickTextToHtml(msg.text) : twitchTextToHtml(msg.text, msg.emotesTag);
     row.innerHTML = '<span class="plat-icon">' + icon + '</span>' +
-      '<span class="uname"' + nameColor + '>' + escapeHtml(msg.user) + '</span>' +
+      '<span class="' + unameClass + '"' + nameColor + '>' + (isDev ? '<span class="dev-spark">✦</span>' : '') + escapeHtml(msg.user) + '</span>' +
       '<span class="mtext">' + bodyHtml + '</span>';
     mergedList.appendChild(row);
     messages.push(msg);
